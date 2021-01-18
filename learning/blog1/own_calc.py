@@ -32,6 +32,10 @@ class Interpreter(object):
             return Token(EOF, '')
         
         current_char = text[pos]
+        if current_char == ' ':
+            self.pos = pos + 1
+            return self.__get_next_token()
+
         if current_char.isdigit():
             current_token_value = ''
             while current_char.isdigit():
