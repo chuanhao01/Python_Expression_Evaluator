@@ -69,30 +69,29 @@ class Interpreter(object):
         else:
             self.__error()
     
+    def __term(self):
+        token = self.current_token
+        self.__eat(INTEGER) # Making sure its an Integer
+        return token.value # Return term value
+    
     def expr(self):
         '''
-        For INT EXPR INT
+        Making it do consec
         '''
         self.current_token = self.__get_next_token()
+        result = self.__term()
 
-        left = self.current_token
-        self.__eat(INTEGER)
-
-        expr = self.current_token
-        self.__eat(EXPR)
-
-        right = self.current_token
-        self.__eat(INTEGER)
-
-        result = None
-        if expr.value == '+':
-            result = left.value + right.value
-        elif expr.value == '-':
-            result = left.value - right.value
-        elif expr.value == '*':
-            result = left.value * right.value
-        elif expr.value == '/':
-            result = left.value / right.value
+        while self.current_token.type == EXPR:
+            expr = self.current_token
+            self.__eat(EXPR)
+            if expr.value == '+':
+                result = result + self.__term()
+            elif expr.value == '-':
+                result = result - self.__term()
+            elif expr.value == '*':
+                result = result * self.__term()
+            elif expr.value == '/':
+                result = result / self.__term()
         return result
 
 def main():
