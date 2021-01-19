@@ -172,6 +172,21 @@ class NodeVisitor(object):
     def __visit_error(self, node):
         raise Exception(f"Visit method visit_{type(node).__name__} is not implemented")
 
+class PostFix(NodeVisitor):
+    def __init__(self, parser):
+        self.parser = parser
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        return f"{left}{right}{node.op.value}"
+    
+    def visit_Num(self, node):
+        return node.value
+    
+    def interpret(self):
+        tree = self.parser.parse()
+        return self.visit(tree)
+
 class Interpreter(NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
@@ -193,8 +208,7 @@ class Interpreter(NodeVisitor):
         # Helper method to interpret the parsed ast
         tree = self.parser.parse()
         print_post_order(tree)
-        value = self.visit(tree)
-        return value
+        return self.visit(tree)
 
 # Utils
 def print_post_order(node, level=0):
@@ -216,6 +230,7 @@ def main():
         lexer = Lexer(text)
         parser = Parser(lexer)
         interpreter = Interpreter(parser)
+        # interpreter = PostFix(parser)
         result = interpreter.interpret()
         print(result)
 
