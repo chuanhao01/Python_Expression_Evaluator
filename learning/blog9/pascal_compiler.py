@@ -61,9 +61,9 @@ class Lexer(object):
             self.current_char = None
     
     def __peek(self):
-        pos = self.pos + 1
-        if pos < len(self.text):
-            return self.text[pos]
+        peek_pos = self.pos + 1
+        if peek_pos < len(self.text):
+            return self.text[peek_pos]
         else:
             return None
     
