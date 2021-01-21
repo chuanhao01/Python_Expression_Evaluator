@@ -21,11 +21,11 @@ factor: PLUS factor
 '''
 
 # --- Tokens ---
-BEGIN, END = {'BEGIN', 'END'}
-SEMI, DOT, ID, ASSIGN = {'SEMI', 'DOT', 'ID', 'ASSIGN'}
-PLUS, MINUS = {'PLUS', 'MINUS'}
-MUL, DIV = {'MUL', 'DIV'}
-LPARAM, RPARAM = {'LPARAM', 'RPARAM'}
+BEGIN, END = ['BEGIN', 'END']
+SEMI, DOT, ID, ASSIGN = ['SEMI', 'DOT', 'ID', 'ASSIGN']
+PLUS, MINUS = ['PLUS', 'MINUS']
+MUL, DIV = ['MUL', 'DIV']
+LPARAM, RPARAM = ['LPARAM', 'RPARAM']
 NUMBER = 'NUMBER'
 EOF = 'EOF'
 
@@ -158,6 +158,38 @@ class Lexer(object):
 class AST(object):
     pass
 
+class Compund(AST):
+    def __init__(self):
+        '''
+        Compund node to store its children
+        '''
+        self.children = []
+
+class Assign(AST):
+    def __init__(self, token, left, right):
+        '''
+        Assign node to store assign operations
+        left -> Variable node
+        right -> expr node return
+        '''
+        self.token = token
+        self.left = left
+        self.right = right
+
+class Variable(AST):
+    def __init__(self, token):
+        '''
+        Variable node based on ID token
+        '''
+        self.token = token
+        self.value = self.token.value
+
+class NoOp(AST):
+    '''
+    Represent the NoOp/Empty
+    '''
+    pass
+
 class BinaryOp(AST):
     def __init__(self, token: Token, left: AST, right: AST):
         self.token = token
@@ -188,10 +220,60 @@ class Parser(object):
         If true, 'consume' the current_token
         Else throw an error
         '''
+        # print(self.current_token, token_type)
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
             self.__error()
+
+    def program(self):
+        node = self.compund_statement()
+        self.__eat(DOT)
+        return node
+    
+    def compund_statement(self):
+        self.__eat(BEGIN)
+        nodes = self.statement_list()
+        self.__eat(END)
+
+        root = Compund()
+        for node in nodes:
+            root.children.append(node)
+        return root
+    
+    def statement_list(self):
+        node = self.statement()
+
+        results = [node]
+        while self.current_token.type == SEMI:
+            self.__eat(SEMI)
+            results.append(self.statement())
+        return results
+
+    def statement(self):
+        if self.current_token.type == BEGIN:
+            return self.compund_statement()
+        elif self.current_token.type == ID:
+            return self.assignment_statement()
+        else:
+            return self.empty()
+
+    def assignment_statement(self):
+        '''
+        assignment_statement: variable ASSIGN expr
+        '''
+        node = self.variable()
+        token = self.current_token
+        self.__eat(ASSIGN)
+        return Assign(token, node, self.expr())
+
+    def empty(self):
+        return NoOp()
+
+    def variable(self):
+        token = self.current_token
+        self.__eat(ID)
+        return Variable(token)
     
     def expr(self):
         '''
@@ -244,9 +326,11 @@ class Parser(object):
         if token.type == NUMBER:
             self.__eat(NUMBER)
             return Num(token)
+        if token.type == ID:
+            return self.variable()
     
     def parse(self):
-        return self.expr()
+        return self.program()
         
 # --- Interpreter ---
 class NodeVisitor(object):
@@ -278,7 +362,18 @@ class NodeVisitor(object):
         raise Exception(error_msg)
 
 class Interpreter(NodeVisitor):
-    def visit_BinaryOp(self, node: AST):
+    def __init__(self, parser):
+        super(Interpreter, self).__init__(parser)
+        self.GLOBAL_SCOPE = {}
+
+    def visit_Compund(self, node: Compund):
+        for child in node.children:
+            self.visit(child)
+        
+    def visit_NoOp(self, node: NoOp):
+        pass
+
+    def visit_BinaryOp(self, node: BinaryOp):
         node_token_type = node.token.type
         if node_token_type == PLUS:
             return self.visit(node.left) + self.visit(node.right)
@@ -289,19 +384,37 @@ class Interpreter(NodeVisitor):
         if node_token_type == DIV:
             return self.visit(node.left) / self.visit(node.right)
     
-    def visit_UnaryOp(self, node: AST):
+    def visit_Assign(self, node: Assign):
+        '''
+        The Assign AST set the global symbol table to the value
+        '''
+        var_name = node.left.value
+        self.GLOBAL_SCOPE[var_name] = self.visit(node.right)
+    
+    def visit_Variable(self, node: Variable):
+        '''
+        This AST is to get the value from the Var
+        '''
+        var_name = node.value
+        if var_name not in self.GLOBAL_SCOPE:
+            raise NameError(f"Variable {var_name} not defined before usage")
+        else:
+            return self.GLOBAL_SCOPE[var_name]
+    
+    def visit_UnaryOp(self, node: UnaryOp):
         node_token_type = node.token.type
         if node_token_type == PLUS:
             return +self.visit(node.child)
         if node_token_type == MINUS:
             return -self.visit(node.child)
     
-    def visit_Num(self, node: AST):
+    def visit_Num(self, node: Num):
         return node.value
     
     def interpret(self):
         tree = self.parser.parse()
-        return self.visit(tree)
+        self.visit(tree)
+        return self.GLOBAL_SCOPE
 
 
 # --- Main Program Code below ---
@@ -323,4 +436,24 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    text = '''
+    BEGIN
+        BEGIN
+            number := 2;
+            a := number;
+            b := 10 * a + 10 * number / 4;
+            c := a - - b
+        END;
+        x := 11;
+    END.
+    '''
+    lexer = Lexer(text)
+    # token = lexer.get_next_token()
+    # while token.type != EOF:
+    #     print(token)
+    #     token = lexer.get_next_token()
+    parser = Parser(lexer)
+    interpreter = Interpreter(parser)
+    result = interpreter.interpret()
+    print(result)
