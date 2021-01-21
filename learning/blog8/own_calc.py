@@ -56,7 +56,8 @@ class Lexer(object):
             self.current_char = None
     
     def __skip_whitespace(self):
-        while self.current_char is not None and self.current_char.isspace(): self.__advance()
+        while self.current_char is not None and self.current_char.isspace():
+            self.__advance()
         return
     
     def __integer(self):
@@ -67,6 +68,7 @@ class Lexer(object):
         return int(integer_value)
     
     def get_next_token(self):
+        print(self.current_char)
         if self.current_char is not None:
             # Whitespace
             if self.current_char.isspace():
