@@ -22,8 +22,7 @@ factor: PLUS factor
 
 # --- Tokens ---
 BEGIN, END = {'BEGIN', 'END'}
-DOT = 'DOT'
-ID = 'ID'
+SEMI, DOT, ID, ASSIGN = {'SEMI', 'DOT', 'ID', 'ASSIGN'}
 PLUS, MINUS = {'PLUS', 'MINUS'}
 MUL, DIV = {'MUL', 'DIV'}
 LPARAM, RPARAM = {'LPARAM', 'RPARAM'}
@@ -38,6 +37,11 @@ class Token(object):
     def __str__(self):
         s = f"Token({self.type}, {self.value})"
         return s
+
+RESERVED_KEYWORDS = {
+    BEGIN: Token(BEGIN, BEGIN),
+    END: Token(END, END)
+}
 
 # --- Lexer -- 
 class Lexer(object):
@@ -89,7 +93,15 @@ class Lexer(object):
             number_value += self.current_char
             self.__advance()
         number_value = float(number_value)
-        return number_value
+        return Token(NUMBER, number_value)
+    
+    def __id(self):
+        result = ''
+        while self.current_char is not None and self.current_char.isalpha():
+            result += self.current_char
+            self.__advance()
+        token = RESERVED_KEYWORDS.get(result, Token(ID, result))
+        return token
     
     def get_next_token(self):
         if self.current_char is not None and self.__check_syntax_errors():
@@ -98,8 +110,12 @@ class Lexer(object):
                 self.__skip_whitespace()
                 return self.get_next_token()
             # Number
-            if self.current_char.isdigit() or (self.current_char == '.' and self.__peek().isdigit()):
-                return Token(NUMBER, self.__number())
+            if self.current_char.isdigit() or self.current_char == '.':
+                if self.current_char.isdigit():
+                    return self.__number()
+                if self.__peek() is not None:
+                    if self.current_char == '.' and self.__peek().isdigit():
+                        return self.__number()
             # BinaryOps
             if self.current_char == '(':
                 self.__advance()
@@ -119,6 +135,21 @@ class Lexer(object):
             if self.current_char == '/':
                 self.__advance()
                 return Token(DIV, '/')
+            # Pascal operators
+            if self.current_char == ';':
+                self.__advance()
+                return Token(SEMI, ';')
+            if self.current_char == '.':
+                self.__advance()
+                return Token(DOT, '.')
+            if self.current_char == ':' and self.__peek() == '=':
+                self.__advance()
+                self.__advance()
+                return Token(ASSIGN, ':=')
+            # Pascal ID and Reserved Keywords
+            if self.current_char.isalpha():
+                return self.__id()
+                
         return Token(EOF, None)
 
 #  --- Parser ---
@@ -242,6 +273,7 @@ class NodeVisitor(object):
     def __visit_method_error(self, node: AST):
         node_name = type(node).__name__
         error_msg = f"Visit method for {node_name} not implemented"
+        error_msg += '\n'
         error_msg += f"Please implement the method visit_{node_name}"
         raise Exception(error_msg)
 
