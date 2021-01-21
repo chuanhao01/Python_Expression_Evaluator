@@ -21,6 +21,9 @@ factor: PLUS factor
 '''
 
 # --- Tokens ---
+BEGIN, END = {'BEGIN', 'END'}
+DOT = 'DOT'
+ID = 'ID'
 PLUS, MINUS = {'PLUS', 'MINUS'}
 MUL, DIV = {'MUL', 'DIV'}
 LPARAM, RPARAM = {'LPARAM', 'RPARAM'}
@@ -52,6 +55,20 @@ class Lexer(object):
             self.current_char = self.text[self.pos]
         else:
             self.current_char = None
+    
+    def __peek(self):
+        pos = self.pos + 1
+        if pos < len(self.text):
+            return self.text[pos]
+        else:
+            return None
+    
+    def __check_syntax_errors(self):
+        if self.current_char is not None:
+            # Making sure there are no syntax errors
+            if self.current_char == '.' and self.__peek() == '.':
+                self.__error()
+        return True
 
     def __skip_whitespace(self):
         while self.current_char is not None and self.current_char.isspace():
@@ -60,21 +77,28 @@ class Lexer(object):
     
     def __number(self):
         number_value = ''
+        seen_dot = False
         while self.current_char is not None and (self.current_char.isdigit() or self.current_char == '.'):
-        # while self.current_char is not None and (self.current_char.isdigit()):
+            # Making sure there is only one dot
+            if self.current_char == '.':
+                if not seen_dot:
+                    seen_dot = True
+                else:
+                    # Already seen dot, there is another dot. Error
+                    self.__error()
             number_value += self.current_char
             self.__advance()
         number_value = float(number_value)
         return number_value
     
     def get_next_token(self):
-        if self.current_char is not None:
+        if self.current_char is not None and self.__check_syntax_errors():
             # Whitespace
             if self.current_char.isspace():
                 self.__skip_whitespace()
                 return self.get_next_token()
             # Number
-            if self.current_char.isdigit() or self.current_char == '.':
+            if self.current_char.isdigit() or (self.current_char == '.' and self.__peek().isdigit()):
                 return Token(NUMBER, self.__number())
             # BinaryOps
             if self.current_char == '(':
