@@ -1,0 +1,5 @@
+# Gitignore file for the whole repo
+# As such is used to ignore artifacts and such
+
+# DLL files
+__pycache__/
