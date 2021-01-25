@@ -3,3 +3,6 @@
 
 # DLL files
 __pycache__/
+
+# Vscode settings
+.vscode/
