@@ -48,6 +48,7 @@ LPARAM, RPARAM = ['LPARAM', 'RPARAM']
 COMMA = 'COMMA'
 E, PI = ['E', 'PI']
 SIN, COS = ['SIN', 'COS']
+LOG = 'LOG' # log(x, base)
 EOF = 'EOF'
 
 # Normal token types
@@ -59,7 +60,8 @@ RESERVED_KEYWORDS = {
     'E': Token(IDENTIFIER, E, None),
     'PI': Token(IDENTIFIER, PI, None),
     'sin': Token(IDENTIFIER, SIN, None),
-    'cos': Token(IDENTIFIER, COS, None)
+    'cos': Token(IDENTIFIER, COS, None),
+    'log': Token(IDENTIFIER, LOG, None)
 }
 
 
@@ -364,7 +366,7 @@ class Parser(object):
         while self.cur_token.type == COMMA:
             if self.cur_token.type == COMMA:
                 self.__consume(COMMA)
-            nodes.append(self.__expression)
+            nodes.append(self.__expression())
         return nodes
         
     def __primary(self):
@@ -453,6 +455,13 @@ class Interpreter(NodeVisitor):
                 return math.sin(visited_arguments[0])
             elif function_name == COS:
                 return math.cos(visited_arguments[0])
+        elif function_name in set([LOG]):
+            # Arity 2
+            if not node.check_arity(2):
+                self.__error()
+            visited_arguments = [self.visit(argument) for argument in node.arguments]
+            if function_name == LOG:
+                return math.log(visited_arguments[0], visited_arguments[1])
     
     def interpret(self):
         ast = self.parser.parse()
@@ -463,8 +472,10 @@ if __name__ == '__main__':
     lexer = Lexer(t)
     # tokens = lexer.get_tokens()
     # print([str(token) for token in tokens])
+
     parser = Parser(lexer)
     # print(parser.parse())
+
     interpreter = Interpreter(parser)
     print(interpreter.interpret())
 
