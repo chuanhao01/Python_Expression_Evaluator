@@ -44,21 +44,23 @@ class Token(object):
 PLUS, MINUS, MUL, DIV = ['PLUS', 'MINUS', 'MUL', 'DIV']
 POWER, INT_DIV = ['POWER', 'INT_DIV']
 LPARAM, RPARAM = ['LPARAM', 'RPARAM']
+COMMA = 'COMMA'
 E, PI = ['E', 'PI']
 SIN, COS = ['SIN', 'COS']
 EOF = 'EOF'
 
-# Reserved keywords
-RESERVED_KEYWORDS = {
-    'E': Token(E, 'E', None),
-    'PI': Token(PI, 'PI', None),
-    'sin': Token(SIN, 'sin', None),
-    'cos': Token(COS, 'cos', None)
-}
-
 # Normal token types
 NUMBER = 'NUMBER'
 IDENTIFIER = 'IDENTIFIER'
+
+# Reserved keywords
+RESERVED_KEYWORDS = {
+    'E': Token(IDENTIFIER, E, None),
+    'PI': Token(IDENTIFIER, PI, None),
+    'sin': Token(IDENTIFIER, SIN, None),
+    'cos': Token(IDENTIFIER, COS, None)
+}
+
 
 ###############################################################################
 #                                                                             #
@@ -139,6 +141,10 @@ class Lexer(object):
                 token = Token(RPARAM, ')', self.cur_pos)
                 self.__advance()
                 return token
+            elif self.cur_char == ',':
+                token = Token(COMMA, ',', self.cur_pos)
+                self.__advance()
+                return token
             
             # Checking double token types
             if self.cur_char == '*':
@@ -210,9 +216,9 @@ class Lexer(object):
             identifier_value += self.cur_char
             self.__advance()
         token = RESERVED_KEYWORDS.get(identifier_value, None)
-        token.pos = pos
         if token is None:
             self.__error()
+        token.pos = pos
         return token
 
     # Main public class method
@@ -221,13 +227,161 @@ class Lexer(object):
         Public method to get all the tokens from the lexer
         Triggers to get all the tokens then return them
         '''
-        while not self.__is_end():
-            self.tokens.append(self.__get_next_token())
+        token = self.__get_next_token()
+        while token.type != EOF:
+            self.tokens.append(token)
+            token = self.__get_next_token()
+        self.tokens.append(token)
         return self.tokens
 
+###############################################################################
+#                                                                             #
+#  Parser                                                                     #
+#                                                                             #
+###############################################################################
+
+# AST
+class AST(object):
+    pass
+
+class Function_Node(AST):
+    def __init__(self, token, arguments):
+        self.token = token
+        self.arguments = arguments
+        self.arity = len(arguments)
+
+class BinaryOp_Node(AST):
+    def __init__(self, token, left: AST, right: AST):
+        self.token = token
+        self.left = left
+        self.right = right
+
+class UnaryOp_Node(AST):
+    def __init__(self, token, child: AST):
+        self.token = token
+        self.child = child
+
+class Number_Node(AST):
+    def __init__(self, token):
+        self.token = token
+        self.value = token.value
+
+class Parser(object):
+    def __init__(self, lexer: Lexer):
+        self.lexer = lexer
+        self.cur_pos = 0
+        self.tokens = self.lexer.get_tokens()
+        self.cur_token = self.tokens[self.cur_pos]
+
+    def __error(self):
+        raise Exception('Parser error')
+
+    def __is_end(self):
+        return not (self.cur_pos < len(self.tokens))
+    
+    def __advance(self):
+        if not self.__is_end():
+            self.cur_pos += 1
+    
+    def __peek(self):
+        pos = self.cur_pos + 1
+        if pos < len(self.tokens):
+            return self.tokens[pos]
+        else:
+            return None
+
+    def __consume(self, token_type: str):
+        if self.cur_token.type == token_type:
+            self.__advance()
+            self.cur_token = self.tokens[self.cur_pos]
+        else:
+            self.__error()
+    
+    def __expression(self):
+        node = self.__term()
+        while self.cur_token.type in set([PLUS, MINUS]):
+            token = self.cur_token
+            if self.cur_token.type == PLUS:
+                self.__consume(PLUS)
+            elif self.cur_token.type == MINUS:
+                self.__consume(MINUS)
+            node = BinaryOp_Node(token, node, self.__term())
+        
+        return node
+    
+    def __term(self):
+        node = self.__factor()
+        while self.cur_token.type in set([MUL, DIV, INT_DIV]):
+            token = self.cur_token
+            if self.cur_token.type == MUL:
+                self.__consume(MUL)
+            elif self.cur_token.type == DIV:
+                self.__consume(DIV)
+            elif self.cur_token.type == INT_DIV:
+                self.__consume(INT_DIV)
+            node = BinaryOp_Node(token, node, self.__factor())
+        return node
+    
+    def __factor(self):
+        node = self.__unary()
+        while self.cur_token.type in set([POWER]):
+            token = self.cur_token
+            if self.cur_token.type == POWER:
+                self.__consume(POWER)
+            node = BinaryOp_Node(token, node, self.__unary())
+        return node
+    
+    def __unary(self):
+        if self.cur_token.type in set([PLUS, MINUS]):
+            if self.cur_token.type == PLUS:
+                self.__consume(PLUS)
+            elif self.cur_token.type == MINUS:
+                self.__consume(MINUS)
+            return self.__unary()
+        else:
+            return self.__call()
+
+    def __call(self):
+        if self.cur_token.type == IDENTIFIER:
+            token = self.cur_token
+            self.__consume(IDENTIFIER)
+            self.__consume(LPARAM)
+            arguments = self.__arguments()
+            self.__consume(RPARAM)
+            return Function_Node(token, arguments)
+        else:
+            return self.__primary()
+        
+    def __arguments(self):
+        node = self.__expression()
+        if node is None:
+            return []
+        nodes = [node]
+        while self.cur_token.type == COMMA:
+            if self.cur_token.type == COMMA:
+                self.__consume(COMMA)
+            nodes.append(self.__expression)
+        return nodes
+        
+    def __primary(self):
+        if self.cur_token.type == NUMBER:
+            token = self.cur_token
+            self.__consume(NUMBER)
+            return Number_Node(token)
+        elif self.cur_token.type == LPARAM:
+            self.__consume(LPARAM)
+            node = self.__expression()
+            self.__consume(RPARAM)
+            return node
+    
+    def parse(self):
+        return self.__expression()
 
 if __name__ == '__main__':
     t = input('Test input:\n')
     lexer = Lexer(t)
-    tokens = lexer.get_tokens()
-    print([str(token) for token in tokens])
+    # tokens = lexer.get_tokens()
+    # print([str(token) for token in tokens])
+    parser = Parser(lexer)
+    print(parser.parse())
+
