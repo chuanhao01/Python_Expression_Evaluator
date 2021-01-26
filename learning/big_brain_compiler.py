@@ -18,6 +18,7 @@ primary: NUMBER
 arguments: expression ((',') expression)*
 '''
 # Libs needed
+import math
 
 ###############################################################################
 #                                                                             #
@@ -245,10 +246,13 @@ class AST(object):
     pass
 
 class Function_Node(AST):
-    def __init__(self, token, arguments):
+    def __init__(self, token: Token, arguments):
         self.token = token
         self.arguments = arguments
         self.arity = len(arguments)
+    
+    def check_arity(self, actual_arity):
+        return self.arity == actual_arity
 
 class BinaryOp_Node(AST):
     def __init__(self, token, left: AST, right: AST):
@@ -377,11 +381,90 @@ class Parser(object):
     def parse(self):
         return self.__expression()
 
+
+###############################################################################
+#                                                                             #
+#  Interpreter                                                                #
+#                                                                             #
+###############################################################################
+class NodeVisitor(object):
+    def __init__(self, parser: Parser):
+        self.parser = parser
+
+    def visit(self, node: AST):
+        node_name = type(node).__name__
+        method_name = f"visit_{node_name}"
+        vist_method = getattr(self, method_name, self.__node_vistor_error)
+        return vist_method(node)
+    
+    def __node_vistor_error(self, node: AST):
+        node_name = type(node).__name__
+        error_msg = f"Visit method for {node_name} not implemented"
+        error_msg += '\n'
+        error_msg += f"Please implement the method visit_{node_name}"
+        raise Exception(error_msg)
+
+class Interpreter(NodeVisitor):
+    def __error(self):
+        raise Exception('Interpreter Error')
+
+    def visit_BinaryOp_Node(self, node: BinaryOp_Node):
+        token_type = node.token.type
+        if token_type == PLUS:
+            return self.visit(node.left) + self.visit(node.right)
+        if token_type == MINUS:
+            return self.visit(node.left) - self.visit(node.right)
+        if token_type == MUL:
+            return self.visit(node.left) * self.visit(node.right)
+        if token_type == DIV:
+            return self.visit(node.left) / self.visit(node.right)
+        if token_type == POWER:
+            return self.visit(node.left) ** self.visit(node.right)
+        if token_type == INT_DIV:
+            return self.visit(node.left) // self.visit(node.right)
+    
+    def visit_UnaryOp_Node(self, node:UnaryOp_Node):
+        token_type = node.token.type
+        if token_type == PLUS:
+            return self.visit(node.child)
+        if token_type == MINUS:
+            return -self.visit(node.child)
+    
+    def visit_Number_Node(self, node: Number_Node):
+        return node.value
+    
+    def visit_Function_Node(self, node: Function_Node):
+        function_name = node.token.value
+        if function_name in set([E, PI]):
+            # Arity 0
+            if not node.check_arity(0):
+                self.__error()
+            # Return based on constant
+            if function_name == E:
+                return math.e
+            elif function_name == PI:
+                return math.pi
+        elif function_name in set([SIN, COS]):
+            # Arity 1
+            if not node.check_arity(1):
+                self.__error()
+            visited_arguments = [self.visit(argument) for argument in node.arguments]
+            if function_name == SIN:
+                return math.sin(visited_arguments[0])
+            elif function_name == COS:
+                return math.cos(visited_arguments[0])
+    
+    def interpret(self):
+        ast = self.parser.parse()
+        return self.visit(ast)
+
 if __name__ == '__main__':
     t = input('Test input:\n')
     lexer = Lexer(t)
     # tokens = lexer.get_tokens()
     # print([str(token) for token in tokens])
     parser = Parser(lexer)
-    print(parser.parse())
+    # print(parser.parse())
+    interpreter = Interpreter(parser)
+    print(interpreter.interpret())
 
