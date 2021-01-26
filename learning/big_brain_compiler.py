@@ -74,8 +74,9 @@ class Lexer(object):
     def __init__(self, text):
         self.text = text
         self.tokens = []
-        self.cur_pos = 0
-        self.cur_char = self.text[self.cur_pos]
+        self.cur_pos = -1
+        self.cur_char = None
+        self.__advance()
     
     # Class Helper methods
     def __is_end(self):
@@ -465,6 +466,8 @@ class Interpreter(NodeVisitor):
     
     def interpret(self):
         ast = self.parser.parse()
+        if ast is None:
+            return None
         return self.visit(ast)
 
 if __name__ == '__main__':
