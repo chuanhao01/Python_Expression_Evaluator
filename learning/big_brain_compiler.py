@@ -102,71 +102,80 @@ class Lexer(object):
 
     # Lexer utility functions
     def __is_whitespace(self, c: str):
+        if c is None:
+            return False
         return c.isspace()
     
     def __is_digit(self, c: str):
+        if c is None:
+            return False
         return c.isdigit()
     
     def __is_alpha(self, c: str):
+        if c is None:
+            return False
         return c.isalpha() or c == '_'
         
     def __get_next_token(self):
-        # Making sure whitespace is skipped
-        if self.__is_whitespace(self.cur_char):
-            self.__skip_whitespace()
-            return self.__get_next_token()
-        # Checking single token types
-        if self.cur_char == '+':
-            token = Token(PLUS, '+', self.cur_pos)
-            self.__advance()
-            return token
-        elif self.cur_char == '-':
-            token = Token(PLUS, '-', self.cur_pos)
-            self.__advance()
-            return token
-        elif self.cur_char == '(':
-            token = Token(PLUS, '(', self.cur_pos)
-            self.__advance()
-            return token
-        elif self.cur_char == ')':
-            token = Token(PLUS, ')', self.cur_pos)
-            self.__advance()
-            return token
-        
-        # Checking double token types
-        if self.cur_char == '*':
-            # If it is power
-            if self.__peek() == '*':
-                token = Token(POWER, '**', self.cur_pos)
-                self.__advance()
+        if not self.__is_end():
+            # Making sure whitespace is skipped
+            if self.__is_whitespace(self.cur_char):
+                self.__skip_whitespace()
+                return self.__get_next_token()
+            # Checking single token types
+            if self.cur_char == '+':
+                token = Token(PLUS, '+', self.cur_pos)
                 self.__advance()
                 return token
-            # else it is mul
-            token = Token(MUL, '*', self.cur_pos)
-            self.__advance()
-            return token
-        elif self.cur_char == '/':
-            # If it is power
-            if self.__peek() == '/':
-                token = Token(INT_DIV, '//', self.cur_pos)
-                self.__advance()
+            elif self.cur_char == '-':
+                token = Token(MINUS, '-', self.cur_pos)
                 self.__advance()
                 return token
-            # else it is mul
-            token = Token(DIV, '/', self.cur_pos)
-            self.__advance()
-            return token
+            elif self.cur_char == '(':
+                token = Token(LPARAM, '(', self.cur_pos)
+                self.__advance()
+                return token
+            elif self.cur_char == ')':
+                token = Token(RPARAM, ')', self.cur_pos)
+                self.__advance()
+                return token
+            
+            # Checking double token types
+            if self.cur_char == '*':
+                # If it is power
+                if self.__peek() == '*':
+                    token = Token(POWER, '**', self.cur_pos)
+                    self.__advance()
+                    self.__advance()
+                    return token
+                # else it is mul
+                token = Token(MUL, '*', self.cur_pos)
+                self.__advance()
+                return token
+            elif self.cur_char == '/':
+                # If it is power
+                if self.__peek() == '/':
+                    token = Token(INT_DIV, '//', self.cur_pos)
+                    self.__advance()
+                    self.__advance()
+                    return token
+                # else it is mul
+                token = Token(DIV, '/', self.cur_pos)
+                self.__advance()
+                return token
+            
+            # Check multi strings
+            if self.__is_digit(self.cur_char) or self.cur_char == '.':
+                # Check NUMBER
+                return self.__number()
+            elif self.__is_alpha(self.cur_char):
+                # Check identifier
+                return self.__identifier()
+            
+            # Unexpected error, char not recognised
+            self.__error()
         
-        # Check multi strings
-        if self.__is_digit(self.cur_char) or self.cur_char == '.':
-            # Check NUMBER
-            return self.__number()
-        elif self.__is_alpha(self.cur_char):
-            # Check identifier
-            return self.__identifier()
-        
-        # Unexpected error, char not recognised
-        self.__error()
+        return Token(EOF, None, self.cur_pos)
 
     def __skip_whitespace(self):
         while self.__is_whitespace(self.cur_char):
@@ -214,7 +223,6 @@ class Lexer(object):
         '''
         while not self.__is_end():
             self.tokens.append(self.__get_next_token())
-        self.tokens.append(Token(EOF, None, self.cur_pos))
         return self.tokens
 
 
@@ -222,4 +230,4 @@ if __name__ == '__main__':
     t = input('Test input:\n')
     lexer = Lexer(t)
     tokens = lexer.get_tokens()
-    print(tokens)
+    print([str(token) for token in tokens])
