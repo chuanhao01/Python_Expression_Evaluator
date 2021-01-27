@@ -163,13 +163,11 @@ class Lexer(object):
                 self.__advance()
                 return token
             elif self.cur_char == '/':
-                # If it is power
                 if self.__peek() == '/':
                     token = Token(INT_DIV, '//', self.cur_pos)
                     self.__advance()
                     self.__advance()
                     return token
-                # else it is mul
                 token = Token(DIV, '/', self.cur_pos)
                 self.__advance()
                 return token
