@@ -1,0 +1,29 @@
+For the basic application, \lstinline[language=Bash]{cli.py} will be the main file for the basic application that will consolidate the different components of the \lstinline[language=Bash]{expression_evaluator} for the basic application: the main compiler, the tokens required by the main compiler, the Abstract Search Tree(AST) as well as the nodes required for the AST
+
+The main compiler comprises of 3 main components: lexer, parser and interpreter. The expression inputted by the user will thus go through these 3 components sequentially. 
+
+First, the lexer will convert the input expression into a sequence of tokens, comprising of a token type and a token value, raising an error if any of the characters in the expression is invalid. However, the lexer will not check if the syntax of the expression is valid. The valid tokens types are as follows:
+
+\begin{verbatim}
+    INIT, EOF, WHITESPACE, RPARAN, LPARAN, NUMBER, DOT, 
+    OPERATOR, PLUS, MINUS, MUL, DIV, POWER
+\end{verbatim}
+
+Afterwards, the parser will analyse the sequence of tokens and build the AST, which each node comprising of an individual token. The parser will also ensure that the grammer that the team has created for the basic application is followed. The grammer is as follows:
+
+\begin{verbatim}
+    expr: LPARAN term ( ( "+" | "-" | "*" | "/" | "**" ) term )* RPARAN
+    term: expr | factor 
+    factor: MINUS factor | NUMBER
+\end{verbatim}
+
+The parser will also be performing checks on the syntax of the input expression, raising an error if:
+
+\begin{itemize}
+    \item There is an odd number of parantheses
+    \item The number of left parantheses do not match the number of right parantheses
+    \item There are multiple consecutive OPERATOR tokens, with the exception of "**"
+    \item There are multiple consecutive NUMBER tokens
+\end{itemize}
+
+Lastly, the interpreter will compute the value of the evaluated expression by evaluating the nodes of the AST from the bottom-up.
