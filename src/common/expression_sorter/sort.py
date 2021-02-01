@@ -58,13 +58,14 @@ class Sort:
 
     def sort_by_length(self):
         expr_list = self.get_all_expr_list()
+        expr_len_list = []
 
         for i in range(0, len(expr_list)):
-            expr_list[i] = len(str(expr_list[i]))
+            expr_len_list.append(len(str(expr_list[i])))
 
-        sorted_list = self.mergeSort(expr_list)
+        sorted_list = self.mergeSort(expr_len_list)
         
-        #TODO: Figure out a way to link this back to the full expression
+        #TODO: Find some way to link this back to the expression list - have a pointer to the original index and move it around as it sorts? idk if that works
         return sorted_list
 
     def sort_by_digitOrder(self):
