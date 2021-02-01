@@ -5,24 +5,23 @@ Expression Sorting Section of the application.
 '''
 
 class File:
-    def __init__(self, filename):
-        self.filename = filename
-        self.file_input = []
-        self.file_output = []
-
-    def read(self):
-        f = open(self.filename, 'r')
-
+    @staticmethod
+    def read(filename):
+        file_input = []
+        
+        # Reading file input
+        f = open(filename, 'r')
         for line in f:
-            self.file_input.append(line.strip())
-
+            file_input.append(line.strip())
         f.close()
 
+        return file_input
 
-    def write(self):
-        f = open(self.filename, 'w')
+    @staticmethod
+    def write(filename, file_output):
+        f = open(filename, 'w')
 
-        for line in self.file_output:
+        for line in file_output:
             f.write(line)
 
         f.close()

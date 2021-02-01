@@ -6,11 +6,11 @@ deals with sorting the various expressions from the input file
 #TODO: Sort by Ascending / Descending       ( Order )
 '''
 
-from .file import File
+from file import File
 
 class Sort:
-    def __init__(self, expr_list, sort_type, sort_order):
-        self.__expr_list = expr_list
+    def __init__(self, all_expr_list = None, sort_type = None, sort_order = None):
+        self.__all_expr_list = all_expr_list
         self.__sort_type = sort_type
         self.__sort_order = sort_order
 
@@ -20,11 +20,11 @@ class Sort:
 
     #* Getter and Setter
 
-    def get_expr_list(self):
-        return self.__expr_list
+    def get_all_expr_list(self):
+        return self.__all_expr_list
 
-    def set_expr_list(self, expr_list):
-        self.__expr_list = expr_list
+    def set_all_expr_list(self, expr_list):
+        self.__all_expr_list = expr_list
 
     def get_sort_type(self):
         return self.__sort_type
@@ -48,16 +48,24 @@ class Sort:
         sort_name = f"sort_by_{sort_type}"
         sort_method = getattr(self, sort_name, self.error)
         
-        sort_method()
+        return sort_method()
 
     # Preprocessing list before calling self.mergeSort()
     def sort_by_value(self):
-        expr_list = self.get_expr_list()
-        self.mergeSort(expr_list)
+        expr_list = self.get_all_expr_list()
+
+        return self.mergeSort(expr_list)
 
     def sort_by_length(self):
-        expr_list = self.get_expr_list()
-        pass
+        expr_list = self.get_all_expr_list()
+
+        for i in range(0, len(expr_list)):
+            expr_list[i] = len(str(expr_list[i]))
+
+        sorted_list = self.mergeSort(expr_list)
+        
+        #TODO: Figure out a way to link this back to the full expression
+        return sorted_list
 
     def sort_by_digitOrder(self):
         pass
@@ -123,4 +131,41 @@ class Sort:
                 right_index += 1
                 merge_index += 1
 
-            print(expr_list)
+        return expr_list
+
+
+
+if __name__ == "__main__":
+    all_expressions = File.read(filename = './testCases.txt')
+
+    #! Just evaluating all the expressions here for testing
+    for i in range(0, len(all_expressions)):
+        all_expressions[i] = eval(all_expressions[i])
+
+    sort = Sort(all_expressions)
+
+    print("Sort by Value in Ascending Order")
+    sort.set_sort_order("ascending")
+    sort.set_sort_type("value")
+    print(sort.sort())
+
+    print()
+
+    print("Sort by Value in Descending Order")
+    sort.set_sort_order("descending")
+    sort.set_sort_type("value")
+    print(sort.sort())   
+    
+    print()
+
+    print("Sort by Length in Ascending Order")
+    sort.set_sort_order("ascending")
+    sort.set_sort_type("length")
+    print(sort.sort())   
+    
+    print()
+
+    print("Sort by Length in Descending Order")
+    sort.set_sort_order("descending")
+    sort.set_sort_type("length")
+    print(sort.sort())   
