@@ -55,7 +55,20 @@ class CLI(object):
         self.__creator_names = ['Chuan Hao(1922264)', 'Sherisse(1935967)']
         self.__creator_class = 'DIT/FT/2B/11'
 
-        self.__selection_options = ['Option 1', 'Option 2', 'Option 3']
+        self.__selection_options = [
+            {
+                'str': 'Option 1',
+                'method_name': 'method_1'
+            },
+            {
+                'str': 'Option 2',
+                'method_name': 'method_2'
+            },
+            {
+                'str': 'Option 3',
+                'method_name': 'method_3'
+            }
+        ]
 
         curses.wrapper(self.__main)
     
@@ -159,7 +172,7 @@ class CLI(object):
             y = height - len(self.__selection_options)//2
             for index, option in enumerate(self.__selection_options):
                 # Get string and find x, y
-                option_str = f"{index + 1}. {option}"
+                option_str = f"{index + 1}. {option['str']}"
                 x = width - len(option_str)//2
                 if current_index == index:
                     self.__selection_window.addstr(y, x, option_str, curses.A_STANDOUT)
@@ -183,7 +196,6 @@ class CLI(object):
                     current_index = 0
                 else:
                     current_index += 1
-            
 
     def __main(self, stdscr):
         self.__stdscr = stdscr
