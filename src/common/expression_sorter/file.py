@@ -12,7 +12,7 @@ class File:
         # Reading file input
         f = open(filename, 'r')
         for line in f:
-            file_input.append(line.strip())
+            file_input.append([line.strip()])
         f.close()
 
         return file_input

@@ -4,6 +4,8 @@ deals with sorting the various expressions from the input file
 
 #TODO: Sort by Value, Length, Digit Order   ( Type )
 #TODO: Sort by Ascending / Descending       ( Order )
+
+#TODO: Find some way to link the sorted list back to the full expression
 '''
 
 from file import File
@@ -30,50 +32,47 @@ class Sort:
         return self.__sort_type
 
     def set_sort_type(self, sort_type):
+        if sort_type not in ["value", "length", "digitOrder"]:
+            self.error()
+
         self.__sort_type = sort_type
     
     def get_sort_order(self):
         return self.__sort_order
 
     def set_sort_order(self, sort_order):
+        if sort_order not in ["ascending", "descending"]:
+            self.error()
+
         self.__sort_order = sort_order
 
+    #* 'Preprocessing' expression - get evaluated value, get length of expression
+    def preprocess_expr(self):
+        all_expressions = self.get_all_expr_list()
+
+        for expression in all_expressions:
+            expression.append(eval(expression[0]))
+            expression.append(len(str(expression[0])))
+
+        return all_expressions
     
     #* Sorting
 
-    # Separating based on sort type - need preprocessing for some sort types
+    # 'Middleman' for mergeSort() method
     def sort(self):
-        sort_type = self.get_sort_type()
+        all_expressions = self.preprocess_expr()
 
-        sort_name = f"sort_by_{sort_type}"
-        sort_method = getattr(self, sort_name, self.error)
-        
-        return sort_method()
-
-    # Preprocessing list before calling self.mergeSort()
-    def sort_by_value(self):
-        expr_list = self.get_all_expr_list()
-
-        return self.mergeSort(expr_list)
-
-    def sort_by_length(self):
-        expr_list = self.get_all_expr_list()
-        expr_len_list = []
-
-        for i in range(0, len(expr_list)):
-            expr_len_list.append(len(str(expr_list[i])))
-
-        sorted_list = self.mergeSort(expr_len_list)
-        
-        #TODO: Find some way to link this back to the expression list - have a pointer to the original index and move it around as it sorts? idk if that works
-        return sorted_list
-
-    def sort_by_digitOrder(self):
-        pass
+        return self.mergeSort(all_expressions)
 
     # Merge Sort WHEEEEEEEEE
     def mergeSort(self, expr_list):
         sort_order = self.get_sort_order()
+        sort_type = self.get_sort_type()
+
+        if sort_type == "value":
+            list_index = 1
+        elif sort_type == "length":
+            list_index = 2
 
         if len(expr_list) > 1:
             #* Dividing the expr_list
@@ -96,7 +95,7 @@ class Sort:
 
             while left_index < len(left_half) and right_index < len(right_half):
                 if sort_order == "ascending":
-                    if left_half[left_index] < right_half[right_index]:
+                    if left_half[left_index][list_index] < right_half[right_index][list_index]:
                         merge_list[merge_index] = left_half[left_index]
                         left_index += 1
 
@@ -105,7 +104,7 @@ class Sort:
                         right_index += 1
 
                 elif sort_order == "descending":
-                    if left_half[left_index] > right_half[right_index]:
+                    if left_half[left_index][list_index] > right_half[right_index][list_index]:
                         merge_list[merge_index] = left_half[left_index]
                         left_index += 1
 
@@ -139,12 +138,8 @@ class Sort:
 if __name__ == "__main__":
     all_expressions = File.read(filename = './testCases.txt')
 
-    #! Just evaluating all the expressions here for testing
-    for i in range(0, len(all_expressions)):
-        all_expressions[i] = eval(all_expressions[i])
-
     sort = Sort(all_expressions)
-
+    '''
     print("Sort by Value in Ascending Order")
     sort.set_sort_order("ascending")
     sort.set_sort_type("value")
@@ -158,7 +153,7 @@ if __name__ == "__main__":
     print(sort.sort())   
     
     print()
-
+    '''
     print("Sort by Length in Ascending Order")
     sort.set_sort_order("ascending")
     sort.set_sort_type("length")
