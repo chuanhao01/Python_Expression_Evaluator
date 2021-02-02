@@ -55,7 +55,7 @@ class CLI(object):
         self.__creator_names = ['Chuan Hao(1922264)', 'Sherisse(1935967)']
         self.__creator_class = 'DIT/FT/2B/11'
 
-        self.__selection_options = OrderedDict([(1, 'Option 1'), (2, 'Option 2'), (3, 'Option 3')])
+        self.__selection_options = ['Option 1', 'Option 2', 'Option 3']
 
         curses.wrapper(self.__main)
     
@@ -65,7 +65,8 @@ class CLI(object):
         '''
         self.__set_up_config()
         self.__set_up_windows()
-        self.__set_up_panels()
+        self.__set_up_windows_configs()
+        # self.__set_up_panels()
 
         # Drawing inital
         self.__load_header()
@@ -75,6 +76,8 @@ class CLI(object):
         Set up curses configs
         '''
         # curses.curs_set(1)
+        # Setting up color pairs
+        # curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK) # Selection highlight
 
     def __set_up_windows(self):
         '''
@@ -93,6 +96,11 @@ class CLI(object):
         self.__selection_window.box()
         self.__selection_y, self.__selection_x = (1, 1)
         self.__selection_window.move(self.__selection_y, self.__selection_x)
+    
+    def __set_up_windows_configs(self):
+        self.__stdscr.keypad(1)
+        self.__header_window.keypad(1)
+        self.__selection_window.keypad(1)
     
     def __set_up_panels(self):
         self.__selection_panel = panel.new_panel(self.__selection_window)
@@ -149,21 +157,32 @@ class CLI(object):
             width = self.__selection_width // 2
             height = self.__selection_height // 2
             y = height - len(self.__selection_options)//2
-            for index, selection in self.__selection_options:
-                selection_str = f"{index + 1}. {selection}"
-                x = width - len(selection_str)//2
+            for index, option in enumerate(self.__selection_options):
+                # Get string and find x, y
+                option_str = f"{index + 1}. {option}"
+                x = width - len(option_str)//2
                 if current_index == index:
-                    self.__selection_window.addstr(y, x, selection_str, curses.A_REVERSE)
-                self.__selection_window.addstr(y, x, selection_str)
+                    self.__selection_window.addstr(y, x, option_str, curses.A_STANDOUT)
+                else:
+                    self.__selection_window.addstr(y, x, option_str)
+                # Update y
+                y += 1
             self.__refresh()
             user_key = self.__selection_window.getch()
-            if user_key == curses.KEY_UP:
-                if current_index >= 0:
+            if user_key in set([curses.KEY_UP, ord('w')]):
+                # For key up keypress
+                if current_index == 0:
+                    # If we are looping back
+                    current_index = len(self.__selection_options) - 1
+                else:
+                    # If normal key press
                     current_index -= 1
-            elif user_key == curses.KEY_DOWN:
-                if current_index < len(self.__selection_options):
+            elif user_key in set([curses.KEY_DOWN, ord('s')]):
+                if current_index == len(self.__selection_options) - 1:
+                    # If we are looping back
+                    current_index = 0
+                else:
                     current_index += 1
-            self.__refresh()
             
 
     def __main(self, stdscr):
