@@ -5,35 +5,6 @@ import curses
 import time
 import curses.panel as panel
 
-class OrderedDict(object):
-    def __init__(self, kv_pairs=None):
-        self.order = []
-        self.values = {}
-        self.index = 0
-        if kv_pairs is not None:
-            for (k, v) in kv_pairs:
-                self.__setitem__(k, v)
-    
-    def __len__(self):
-        return len(self.order)
-    
-    def __setitem__(self, key, value):
-        self.values[key] = value
-        if key not in self.values:
-            self.order.append(key)
-    
-    def __getitem__(self, key):
-        return self.values.get(key, None)
-    
-    def __iter__(self):
-        return self
-    
-    def __next__(self):
-        if self.index == len(self.order):
-            raise StopIteration
-        self.index += 1
-        return self.order[self.index], self.values[self.index]
-
 class CLI(object):
     def __init__(self):
         # Curses objs
@@ -86,7 +57,8 @@ class CLI(object):
     
     def __set_up(self):
         '''
-        Main helper function to set up everheightthing
+        Main helper function to set up everything
+        Set up only includes things that will run only once
         '''
         self.__set_up_config()
         self.__set_up_windows()
@@ -279,8 +251,41 @@ class CLI(object):
         self.__load_exit()
         self.__refresh()
 
-        # Stop the application
-        time.sleep(3)
+        # Final exit draw
+        width = self.__application_width // 2
+        height = self.__application_height // 2
+        y = height - 2
+        s = f"Thank you for using the advance application"
+        x = width - len(s) // 2
+        self.__exit_window.addstr(y, x, s)
+        y += 1
+        # s = f"Bye. :D"
+        # x = width - len(s) // 2
+        # self.__exit_window.addstr(y, x, s)
+        # Refresh
+        self.__refresh()
+
+        # Countdown to leave
+        for count in range(3, -1, -1):
+            # Get string for countdown
+            s = f"The application will close in {count} seconds"
+            # Cal
+            x = width - len(s) // 2
+            # Show string
+            self.__exit_window.addstr(y, x, s)
+            self.__refresh()
+            time.sleep(1)
+        
+        y += 1
+        
+        # Bye message
+        s = f"Bye. :D"
+        x = width - len(s) // 2
+        self.__exit_window.addstr(y, x, s)
+        self.__refresh()
+
+        time.sleep(1)
+            
         return
 
     def __main(self, stdscr):
