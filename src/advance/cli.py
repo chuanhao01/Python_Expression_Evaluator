@@ -31,8 +31,8 @@ class CLI(object):
         self.__expression_y, self.__expression_x = None, None
 
         # Expression visual pad
-        self.__expression_visual_pad = None
-        self.__expression_visual_pad_pos = None
+        self.__application_history_pad = None
+        self.__application_history_pad_pos = None
 
         # Exit panel
         self.__exit_panel = None
@@ -115,8 +115,8 @@ class CLI(object):
         self.__expression_window.move(self.__expression_y, self.__expression_x)
 
         # Expression visual pad
-        self.__expression_visual_pad = curses.newpad(self.__history_length, self.__application_width - 2)
-        self.__expression_visual_pad_pos = self.__history_length - 1
+        self.__application_history_pad = curses.newpad(self.__history_length, self.__application_width - 2)
+        self.__application_history_pad_pos = self.__history_length - 1
 
         # Exit window
         self.__exit_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
@@ -130,11 +130,11 @@ class CLI(object):
         self.__application_window.keypad(1)
         self.__selection_window.keypad(1)
         self.__expression_window.keypad(1)
-        self.__expression_visual_pad.keypad(1)
+        self.__application_history_pad.keypad(1)
 
         # Expression
         self.__expression_window.scrollok(True)
-        self.__expression_visual_pad.scrollok(True)
+        self.__application_history_pad.scrollok(True)
         # self.__expression_window.setscrreg(0, self.__application_height - 3)
     
     def __set_up_panels(self):
@@ -363,7 +363,7 @@ class CLI(object):
             user_key = self.__expression_window.getch()
             if user_key == 27:
                 # Esc key, go into pad mode
-                self.__update_expression_visual_pad()
+                self.__update_application_history_pad()
                 # Load expression again
                 self.__load_expression()
                 self.__refresh()
@@ -385,10 +385,10 @@ class CLI(object):
         '''
         Writes the given string to the expression pad
         '''
-        self.__expression_visual_pad.addstr(self.__history_length - 1, 0, s)
-        self.__expression_visual_pad.scroll()
+        self.__application_history_pad.addstr(self.__history_length - 1, 0, s)
+        self.__application_history_pad.scroll()
 
-    def __load_expression_visual_pad(self):
+    def __load_application_hisotry_pad(self):
         # Mainly for setting curses settings
         curses.curs_set(0)
         curses.noecho()
@@ -400,19 +400,19 @@ class CLI(object):
         # Load header to update it
         self.__update_application_panel()
 
-    def __update_expression_visual_pad(self):
-        self.__load_expression_visual_pad()
+    def __update_application_history_pad(self):
+        self.__load_application_hisotry_pad()
         self.__refresh()
         while True:
-            self.__expression_visual_pad.refresh(self.__expression_visual_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
-            user_key = self.__expression_visual_pad.getch()
+            self.__application_history_pad.refresh(self.__application_history_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
+            user_key = self.__application_history_pad.getch()
             if user_key in set([ord('k')]):
                 # Move down
-                self.__expression_visual_pad_pos -= 1
+                self.__application_history_pad_pos -= 1
             elif user_key in set([ord('j')]):
                 # Move up
-                if self.__expression_visual_pad_pos < self.__history_length:
-                    self.__expression_visual_pad_pos += 1
+                if self.__application_history_pad_pos < self.__history_length:
+                    self.__application_history_pad_pos += 1
             elif user_key in set([ord('i')]):
                 return
 
