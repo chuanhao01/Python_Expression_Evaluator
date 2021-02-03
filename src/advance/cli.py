@@ -286,9 +286,18 @@ class CLI(object):
                 option = self.__selection_options[current_index]
                 method_name = f"_{self.__class__.__name__}{option['method_name']}"
                 method = getattr(self, method_name, self.__error)
-                # Debug
-                # self.__selection_window.addstr(y, x, str(method))
-                return method()
+
+                # Call the method selected
+                return_code = method()
+
+                if return_code == 1:
+                    # Application should exit, exit code 1
+                    return
+                
+                # Re-load the selection
+                self.__load_selection()
+                self.__refresh()
+
     
     def __load_exit(self):
         '''
@@ -298,6 +307,7 @@ class CLI(object):
         curses.curs_set(0)
 
         self.__current_application = 'Exiting Application'
+        self.__current_application_attributes = curses.color_pair(5)
 
         self.__update_application_panel(self.__exit_panel)
     
@@ -340,10 +350,10 @@ class CLI(object):
         self.__refresh()
 
         time.sleep(1)
-            
-        return
 
-    def __load_expression(self):
+        return 1 # Returns exit code for the program to end
+
+    def __load_expression_evaluator(self):
         curses.noecho()
         curses.curs_set(0)
         curses.cbreak()
