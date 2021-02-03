@@ -85,7 +85,7 @@ class CLI(object):
         # Setting up color pairs
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE) # Selection highlight
         curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK) # Expression
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK) # Expression_Pad
+        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK) # Expression Visual Pad
 
     def __set_up_windows(self):
         '''
@@ -151,7 +151,7 @@ class CLI(object):
         self.__exit_window.noutrefresh()
         curses.doupdate()
 
-    def __update_application_panel(self, top_panel):
+    def __update_application_panel(self, top_panel=None):
         '''
         Private helper function to erase the application, set the given panel to the top and update the panels
         '''
@@ -159,8 +159,9 @@ class CLI(object):
         self.__header_window.erase()
         self.__load_header()
         self.__load_application()
-        top_panel.top()
-        panel.update_panels()
+        if top_panel is not None:
+            top_panel.top()
+            panel.update_panels()
     
     def __load_header(self):
         '''
@@ -282,8 +283,7 @@ class CLI(object):
                 method = getattr(self, method_name, self.__error)
                 # Debug
                 # self.__selection_window.addstr(y, x, str(method))
-                method()
-                return
+                return method()
     
     def __load_exit(self):
         '''
@@ -344,7 +344,7 @@ class CLI(object):
         curses.cbreak()
 
         self.__current_application = 'Expression Evaluator'
-        self.__current_application_attributes = curses.COLOR_BLUE
+        self.__current_application_attributes = curses.color_pair(2)
         self.__expression_y = self.__expression_window.getmaxyx()[0]
         self.__expression_y -= 1
         self.__expression_window.move(self.__expression_y, self.__expression_x)
@@ -364,6 +364,9 @@ class CLI(object):
             if user_key == 27:
                 # Esc key, go into pad mode
                 self.__update_expression_visual_pad()
+                # Load expression again
+                self.__load_expression()
+                self.__refresh()
             elif user_key in set([ord('i')]):
                 # Insert mode, start writing your expression
                 s = "Your Expression: "
@@ -385,20 +388,33 @@ class CLI(object):
         self.__expression_visual_pad.addstr(self.__history_length - 1, 0, s)
         self.__expression_visual_pad.scroll()
 
+    def __load_expression_visual_pad(self):
+        # Mainly for setting curses settings
+        curses.curs_set(0)
+        curses.noecho()
+        curses.cbreak()
+
+        self.__current_application = f"Application History"
+        self.__current_application_attributes = curses.color_pair(3)
+
+        # Load header to update it
+        self.__update_application_panel()
 
     def __update_expression_visual_pad(self):
+        self.__load_expression_visual_pad()
+        self.__refresh()
         while True:
+            self.__expression_visual_pad.refresh(self.__expression_visual_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
             user_key = self.__expression_visual_pad.getch()
-            if user_key in set([ord('j')]):
+            if user_key in set([ord('k')]):
                 # Move down
                 self.__expression_visual_pad_pos -= 1
-            elif user_key in set([ord('k')]):
+            elif user_key in set([ord('j')]):
                 # Move up
                 if self.__expression_visual_pad_pos < self.__history_length:
                     self.__expression_visual_pad_pos += 1
             elif user_key in set([ord('i')]):
                 return
-            self.__expression_visual_pad.refresh(self.__expression_visual_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
 
 
     def __main(self, stdscr):
