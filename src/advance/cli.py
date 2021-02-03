@@ -24,6 +24,11 @@ class CLI(object):
         self.__selection_window = None
         self.__selection_y, self.__selection_x = None, None
 
+        # Expression
+        self.__expression_panel = None
+        self.__expression_window = None
+        self.__expression_y, self.__expression_x = None, None
+
         # Exit panel
         self.__exit_panel = None
         self.__exit_window = None
@@ -34,11 +39,10 @@ class CLI(object):
         self.__application_instructions = ['Please use your arrow keys to hover over the option you want to select', 'The current select will be highlighted', 'Press enter to select the option']
         self.__creator_names = ['Chuan Hao(1922264)', 'Sherisse(1935967)']
         self.__creator_class = 'DIT/FT/2B/11'
-
         self.__selection_options = [
             {
                 'str': 'Evaluate an Expression',
-                'method_name': 'method_1'
+                'method_name': '__update_expression'
             },
             {
                 'str': 'Sort the Expression in a file',
@@ -49,6 +53,8 @@ class CLI(object):
                 'method_name': '__update_exit'
             }
         ]
+
+        self.__current_application = None
 
         curses.wrapper(self.__main)
     
@@ -71,7 +77,7 @@ class CLI(object):
         '''
         # curses.curs_set(1)
         # Setting up color pairs
-        # curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK) # Selection highlight
+        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK) # Selection highlight
 
     def __set_up_windows(self):
         '''
@@ -82,7 +88,6 @@ class CLI(object):
         # Header window
         self.__header_height, self.__header_width = int(self.__height * 0.3), self.__width
         self.__header_window = self.__stdscr.derwin(self.__header_height, self.__header_width, 0, 0)
-        self.__header_window.box()
         self.__header_y, self.__header_x = (1, 1)
         self.__header_window.move(self.__header_y, self.__header_x)
 
@@ -92,37 +97,61 @@ class CLI(object):
         self.__application_window.box()
 
         # Selection window
-        self.__selection_window = self.__application_window.derwin(0, 0)
-        # self.__selection_window.box()
-        self.__selection_y, self.__selection_x = (1, 1)
+        self.__selection_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
+        self.__selection_y, self.__selection_x = (0, 0)
         self.__selection_window.move(self.__selection_y, self.__selection_x)
 
+        # Expression window
+        self.__expression_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
+        self.__expression_y, self.__expression_x = (0, 0)
+        self.__expression_window.move(self.__expression_y, self.__expression_x)
+
         # Exit window
-        self.__exit_window = self.__application_window.derwin(0, 0)
-        # self.__exit_window.box()
-        self.__exit_y, self.__exit_x = (1, 1)
+        self.__exit_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
+        self.__exit_y, self.__exit_x = (0, 0)
         self.__exit_window.move(self.__selection_y, self.__selection_x)
-        # self.__exit_window.addstr('asljdnalsdsa')
     
     def __set_up_windows_configs(self):
+        # Standard Keypads
         self.__stdscr.keypad(1)
         self.__header_window.keypad(1)
-        self.__selection_window.keypad(1)
+        self.__application_window.keypad(1)
+
+        # Expression
+        self.__expression_window.scrollok(True)
     
     def __set_up_panels(self):
         self.__selection_panel = panel.new_panel(self.__selection_window)
+        self.__expression_panel = panel.new_panel(self.__expression_window)
         self.__exit_panel = panel.new_panel(self.__exit_window)
     
     def __refresh(self):
         self.__stdscr.noutrefresh()
         self.__header_window.noutrefresh()
+        self.__application_window.noutrefresh()
         self.__selection_window.noutrefresh()
+        self.__expression_window.noutrefresh()
+        self.__exit_window.noutrefresh()
         curses.doupdate()
+
+    def __update_application_panel(self, top_panel):
+        '''
+        Private helper function to erase the application, set the given panel to the top and update the panels
+        '''
+        self.__application_window.erase()
+        self.__header_window.erase()
+        self.__load_header()
+        self.__load_application()
+        top_panel.top()
+        panel.update_panels()
     
     def __load_header(self):
         '''
         Private helper function for loading the header
         '''
+        # Setup
+        self.__header_y, self.__header_x = (1, 1)
+        self.__header_window.box()
         # Calculate width for later on
         width = self.__header_width - 2
         width = width//2
@@ -157,14 +186,11 @@ class CLI(object):
             x = width - len(instruction)//2
             self.__header_window.addstr(self.__header_y, x, instruction)
             self.__header_y += 1
-    
-    def __update_header(self):
-        '''
-        Special update function for header
-        Since the header is only loaded once, no need for loop
-        '''
-        self.__load_header()
-        self.__refresh()
+        
+        # Adding current application
+        self.__header_y += 1
+        x = width - len(self.__current_application)//2
+        self.__header_window.addstr(self.__header_y, x, self.__current_application, curses.color_pair(1))
     
     def __load_application(self):
         '''
@@ -172,21 +198,19 @@ class CLI(object):
         '''
         self.__application_window.box()
     
-    def __update_application_panel(self, top_panel):
-        '''
-        Private helper function to erase the application, set the given panel to the top and update the panels
-        '''
-        self.__application_window.erase()
-        self.__load_application()
-        top_panel.top()
-        panel.update_panels()
-
     def __load_selection(self):
         '''
         Helper private function to load the default state of the selection
         '''
+        # Curses config
         curses.cbreak()
         curses.noecho()
+        curses.curs_set(0)
+
+        # Set application config
+        self.__current_application = 'Selection Menu'
+
+        # Update panel
         self.__update_application_panel(self.__selection_panel)
 
     def __update_selection(self):
@@ -215,7 +239,7 @@ class CLI(object):
             user_key = self.__selection_window.getch()
             # self.__selection_window.addstr(y, x, str(user_key))
             # self.__selection_window.addstr(y+1, x, str(curses.KEY_ENTER))
-            if user_key in set([curses.KEY_UP, ord('w')]):
+            if user_key in set([curses.KEY_UP, ord('w'), ord('k')]):
                 # For key up keypress
                 if current_index == 0:
                     # If we are looping back
@@ -223,7 +247,7 @@ class CLI(object):
                 else:
                     # If normal key press
                     current_index -= 1
-            elif user_key in set([curses.KEY_DOWN, ord('s')]):
+            elif user_key in set([curses.KEY_DOWN, ord('s'), ord('j')]):
                 if current_index == len(self.__selection_options) - 1:
                     # If we are looping back
                     current_index = 0
@@ -244,6 +268,11 @@ class CLI(object):
         '''
         Helper private function to load the default state of the exit
         '''
+        curses.noecho()
+        curses.curs_set(0)
+
+        self.__current_application = 'Exiting Application'
+
         self.__update_application_panel(self.__exit_panel)
     
     def __update_exit(self):
@@ -288,12 +317,29 @@ class CLI(object):
             
         return
 
+    def __load_expression(self):
+        curses.echo()
+        curses.curs_set(1)
+        curses.cbreak()
+
+        self.__current_application = 'Expression Evaluator'
+        self.__expression_y = self.__expression_window.getmaxyx()[0]
+        self.__expression_y -= 1
+        self.__expression_window.move(self.__expression_y, self.__expression_x)
+
+        self.__update_application_panel(self.__expression_panel)
+
+    def __update_expression(self):
+        self.__load_expression()
+        self.__refresh()
+        while True:
+            u = self.__expression_window.getstr()
+            # self.__expression_window.scroll()
+            # print(u)
+
     def __main(self, stdscr):
         self.__stdscr = stdscr
         self.__set_up()
-
-        # Update header, is not part of application so its just to show
-        self.__update_header()
 
         # Start the application
         # Application loop is -> Update -> Load -> Refresh -> loop
