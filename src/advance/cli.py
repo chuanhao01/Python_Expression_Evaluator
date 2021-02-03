@@ -46,11 +46,15 @@ class CLI(object):
         self.__selection_options = [
             {
                 'str': 'Evaluate an Expression',
-                'method_name': '__update_expression'
+                'method_name': '__update_expression_evaluator'
             },
             {
                 'str': 'Sort the Expression in a file',
                 'method_name': 'method_2'
+            },
+            {
+                'str': "Look at the application's history",
+                'method_name': '__update_application_history_pad'
             },
             {
                 'str': 'Exit',
@@ -83,8 +87,10 @@ class CLI(object):
         # curses.curs_set(1)
         # Setting up color pairs
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE) # Selection highlight
-        curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK) # Expression
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK) # Expression Visual Pad
+        curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK) # Expression Evaluator
+        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK) # Expression File Sorter
+        curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK) # Application History
+        curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK) # Exit application
 
     def __set_up_windows(self):
         '''
@@ -350,41 +356,52 @@ class CLI(object):
 
         self.__update_application_panel(self.__application_terminal_panel)
 
-    def __update_expression(self):
-        self.__load_expression()
+    def __update_expression_evaluator(self):
+        self.__load_expression_evaluator()
         self.__refresh()
-        while True:
-            s = "Press 'i' to start writing your expression, Press 'esc' to look at the history of your past evaluated expressions"
-            self.__write_expression_visual_pad(s)
-            self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, s)
-            self.__application_terminal_window.scroll()
 
+        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of your past evaluated expressions"
+        self.__write_expression_visual_pad(expression_evaluator_prompt_str)
+        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
+        self.__application_terminal_window.scroll()
+
+        while True:
             user_key = self.__application_terminal_window.getch()
             if user_key == 27:
-                # Esc key, go into pad mode
+                # Esc key, Return to selection
+                return
+            elif user_key in set([ord('v')]):
+                # v key, visual mode, To look at history
                 self.__update_application_history_pad()
                 # Load expression again
-                self.__load_expression()
+                self.__load_expression_evaluator()
                 self.__refresh()
             elif user_key in set([ord('i')]):
                 # Insert mode, start writing your expression
-                s = "Your Expression: "
-                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, s)
+                expression_prompt = "Your Expression: "
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_prompt)
 
                 curses.echo()
                 curses.curs_set(1)
-                expression_str = self.__application_terminal_window.getstr()
-                self.__write_expression_visual_pad(f"{s}{expression_str}")
+                expression_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                expression_input = str(expression_raw_input, "utf-8")
+                self.__write_expression_visual_pad(f"{expression_prompt}{expression_input}")
                 curses.noecho()
                 curses.curs_set(0)
-            self.__refresh()
+            else:
+                continue
+                
+            self.__write_expression_visual_pad(expression_evaluator_prompt_str)
+            self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
+            self.__application_terminal_window.scroll()
 
+            self.__refresh()
     
-    def __write_expression_visual_pad(self, s):
+    def __write_expression_visual_pad(self, history_str):
         '''
         Writes the given string to the expression pad
         '''
-        self.__application_history_pad.addstr(self.__history_length - 1, 0, s)
+        self.__application_history_pad.addstr(self.__history_length - 1, 0, history_str)
         self.__application_history_pad.scroll()
 
     def __load_application_hisotry_pad(self):
