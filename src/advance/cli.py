@@ -26,10 +26,9 @@ class CLI(object):
         self.__selection_y, self.__selection_x = None, None
 
         # Expression
-        self.__expression_panel = None
-        self.__expression_window = None
-        self.__expression_y, self.__expression_x = None, None
-
+        self.__application_terminal_panel = None
+        self.__application_terminal_window = None
+        self.__application_terminal_y, self.__application_terminal_x = None, None
         # Expression visual pad
         self.__application_history_pad = None
         self.__application_history_pad_pos = None
@@ -110,9 +109,9 @@ class CLI(object):
         self.__selection_window.move(self.__selection_y, self.__selection_x)
 
         # Expression window
-        self.__expression_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
-        self.__expression_y, self.__expression_x = (0, 0)
-        self.__expression_window.move(self.__expression_y, self.__expression_x)
+        self.__application_terminal_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
+        self.__application_terminal_y, self.__application_terminal_x = (0, 0)
+        self.__application_terminal_window.move(self.__application_terminal_y, self.__application_terminal_x)
 
         # Expression visual pad
         self.__application_history_pad = curses.newpad(self.__history_length, self.__application_width - 2)
@@ -129,17 +128,17 @@ class CLI(object):
         self.__header_window.keypad(1)
         self.__application_window.keypad(1)
         self.__selection_window.keypad(1)
-        self.__expression_window.keypad(1)
+        self.__application_terminal_window.keypad(1)
         self.__application_history_pad.keypad(1)
 
         # Expression
-        self.__expression_window.scrollok(True)
+        self.__application_terminal_window.scrollok(True)
         self.__application_history_pad.scrollok(True)
-        # self.__expression_window.setscrreg(0, self.__application_height - 3)
+        # self.__application_terminal_window.setscrreg(0, self.__application_height - 3)
     
     def __set_up_panels(self):
         self.__selection_panel = panel.new_panel(self.__selection_window)
-        self.__expression_panel = panel.new_panel(self.__expression_window)
+        self.__application_terminal_panel = panel.new_panel(self.__application_terminal_window)
         self.__exit_panel = panel.new_panel(self.__exit_window)
     
     def __refresh(self):
@@ -147,7 +146,7 @@ class CLI(object):
         self.__header_window.noutrefresh()
         self.__application_window.noutrefresh()
         self.__selection_window.noutrefresh()
-        self.__expression_window.noutrefresh()
+        self.__application_terminal_window.noutrefresh()
         self.__exit_window.noutrefresh()
         curses.doupdate()
 
@@ -345,11 +344,11 @@ class CLI(object):
 
         self.__current_application = 'Expression Evaluator'
         self.__current_application_attributes = curses.color_pair(2)
-        self.__expression_y = self.__expression_window.getmaxyx()[0]
-        self.__expression_y -= 1
-        self.__expression_window.move(self.__expression_y, self.__expression_x)
+        self.__application_terminal_y = self.__application_terminal_window.getmaxyx()[0]
+        self.__application_terminal_y -= 1
+        self.__application_terminal_window.move(self.__application_terminal_y, self.__application_terminal_x)
 
-        self.__update_application_panel(self.__expression_panel)
+        self.__update_application_panel(self.__application_terminal_panel)
 
     def __update_expression(self):
         self.__load_expression()
@@ -357,10 +356,10 @@ class CLI(object):
         while True:
             s = "Press 'i' to start writing your expression, Press 'esc' to look at the history of your past evaluated expressions"
             self.__write_expression_visual_pad(s)
-            self.__expression_window.addstr(self.__expression_y, self.__expression_x, s)
-            self.__expression_window.scroll()
+            self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, s)
+            self.__application_terminal_window.scroll()
 
-            user_key = self.__expression_window.getch()
+            user_key = self.__application_terminal_window.getch()
             if user_key == 27:
                 # Esc key, go into pad mode
                 self.__update_application_history_pad()
@@ -370,11 +369,11 @@ class CLI(object):
             elif user_key in set([ord('i')]):
                 # Insert mode, start writing your expression
                 s = "Your Expression: "
-                self.__expression_window.addstr(self.__expression_y, self.__expression_x, s)
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, s)
 
                 curses.echo()
                 curses.curs_set(1)
-                expression_str = self.__expression_window.getstr()
+                expression_str = self.__application_terminal_window.getstr()
                 self.__write_expression_visual_pad(f"{s}{expression_str}")
                 curses.noecho()
                 curses.curs_set(0)
