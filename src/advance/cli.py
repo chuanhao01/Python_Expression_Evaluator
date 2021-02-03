@@ -10,6 +10,7 @@ class CLI(object):
         # Curses objs
         self.__stdscr = None
         self.__height, self.__width = None, None
+        self.__history_length = 300
 
         self.__header_window = None
         self.__header_height, self.__header_width = None, None
@@ -27,6 +28,8 @@ class CLI(object):
         # Expression
         self.__expression_panel = None
         self.__expression_window = None
+        self.__expression_pad = None
+        self.__expression_pad_pos = None
         self.__expression_y, self.__expression_x = None, None
 
         # Exit panel
@@ -103,6 +106,8 @@ class CLI(object):
 
         # Expression window
         self.__expression_window = self.__application_window.derwin(self.__application_height - 2, self.__application_width - 2, 1, 1)
+        self.__expression_pad = curses.newpad(self.__history_length, self.__application_width - 2)
+        self.__expression_pad_pos = self.__history_length - 1
         self.__expression_y, self.__expression_x = (0, 0)
         self.__expression_window.move(self.__expression_y, self.__expression_x)
 
@@ -118,9 +123,12 @@ class CLI(object):
         self.__application_window.keypad(1)
         self.__selection_window.keypad(1)
         self.__expression_window.keypad(1)
+        self.__expression_pad.keypad(1)
 
         # Expression
         self.__expression_window.scrollok(True)
+        self.__expression_pad.scrollok(True)
+        # self.__expression_window.setscrreg(0, self.__application_height - 3)
     
     def __set_up_panels(self):
         self.__selection_panel = panel.new_panel(self.__selection_window)
@@ -134,6 +142,7 @@ class CLI(object):
         self.__selection_window.noutrefresh()
         self.__expression_window.noutrefresh()
         self.__exit_window.noutrefresh()
+        # self.__expression_pad.refresh(self.__expression_pad_pos - (self.__application_height - 2), 0, self.__application_height, 1, self.__height - 2, self.__width - 1)
         curses.doupdate()
 
     def __update_application_panel(self, top_panel):
@@ -320,7 +329,7 @@ class CLI(object):
         return
 
     def __load_expression(self):
-        curses.echo()
+        curses.noecho()
         curses.curs_set(1)
         curses.cbreak()
 
@@ -334,20 +343,46 @@ class CLI(object):
     def __update_expression(self):
         self.__load_expression()
         self.__refresh()
-        current_pos = 0
         while True:
             user_key = self.__expression_window.getch()
-            if user_key in set([curses.KEY_UP, ord('w'), ord('k')]):
-                current_pos += 1
-                self.__expression_window.scroll()
-            elif user_key in set([curses.KEY_DOWN, ord('s'), ord('j')]):
-                current_pos -= 1
-                self.__expression_window.scroll(-1)
-            else:
+            if user_key == 27:
+                # Esc key, go into pad mode
+                self.__update_expression_pad()
+            elif user_key in set([ord('i')]):
+                curses.echo()
                 u = self.__expression_window.getstr()
-            # self.__expression_window.scroll()
-            # print(u)
+                self.__write_expression_pad(u)
+                curses.noecho()
+            else:
+                curses.echo()
+                u = self.__expression_window.getstr()
+                self.__write_expression_pad(u)
+                curses.noecho()
             self.__refresh()
+
+    
+    def __write_expression_pad(self, s):
+        '''
+        Writes the given string to the expression pad
+        '''
+        self.__expression_pad.addstr(self.__history_length - 1, 0, s)
+        self.__expression_pad.scroll()
+
+
+    def __update_expression_pad(self):
+        while True:
+            user_key = self.__expression_pad.getch()
+            if user_key in set([ord('j')]):
+                # Move down
+                self.__expression_pad_pos -= 1
+            elif user_key in set([ord('k')]):
+                # Move up
+                if self.__expression_pad_pos < self.__history_length:
+                    self.__expression_pad_pos += 1
+            elif user_key in set([ord('i')]):
+                return
+            self.__expression_pad.refresh(self.__expression_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
+
 
     def __main(self, stdscr):
         self.__stdscr = stdscr
