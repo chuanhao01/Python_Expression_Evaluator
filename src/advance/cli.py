@@ -330,7 +330,7 @@ class CLI(object):
 
     def __load_expression(self):
         curses.noecho()
-        curses.curs_set(1)
+        curses.curs_set(0)
         curses.cbreak()
 
         self.__current_application = 'Expression Evaluator'
@@ -344,20 +344,26 @@ class CLI(object):
         self.__load_expression()
         self.__refresh()
         while True:
+            s = "Press 'i' to start writing your expression, Press 'esc' to look at the history of your past evaluated expressions"
+            self.__write_expression_pad(s)
+            self.__expression_window.addstr(self.__expression_y, self.__expression_x, s)
+            self.__expression_window.scroll()
+
             user_key = self.__expression_window.getch()
             if user_key == 27:
                 # Esc key, go into pad mode
                 self.__update_expression_pad()
             elif user_key in set([ord('i')]):
+                # Insert mode, start writing your expression
+                s = "Your Expression: "
+                self.__expression_window.addstr(self.__expression_y, self.__expression_x, s)
+
                 curses.echo()
-                u = self.__expression_window.getstr()
-                self.__write_expression_pad(u)
+                curses.curs_set(1)
+                expression_str = self.__expression_window.getstr()
+                self.__write_expression_pad(f"{s}{expression_str}")
                 curses.noecho()
-            else:
-                curses.echo()
-                u = self.__expression_window.getstr()
-                self.__write_expression_pad(u)
-                curses.noecho()
+                curses.curs_set(0)
             self.__refresh()
 
     
