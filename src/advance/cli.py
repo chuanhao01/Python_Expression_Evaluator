@@ -116,6 +116,8 @@ class CLI(object):
         self.__stdscr.keypad(1)
         self.__header_window.keypad(1)
         self.__application_window.keypad(1)
+        self.__selection_window.keypad(1)
+        self.__expression_window.keypad(1)
 
         # Expression
         self.__expression_window.scrollok(True)
@@ -332,10 +334,20 @@ class CLI(object):
     def __update_expression(self):
         self.__load_expression()
         self.__refresh()
+        current_pos = 0
         while True:
-            u = self.__expression_window.getstr()
+            user_key = self.__expression_window.getch()
+            if user_key in set([curses.KEY_UP, ord('w'), ord('k')]):
+                current_pos += 1
+                self.__expression_window.scroll()
+            elif user_key in set([curses.KEY_DOWN, ord('s'), ord('j')]):
+                current_pos -= 1
+                self.__expression_window.scroll(-1)
+            else:
+                u = self.__expression_window.getstr()
             # self.__expression_window.scroll()
             # print(u)
+            self.__refresh()
 
     def __main(self, stdscr):
         self.__stdscr = stdscr
