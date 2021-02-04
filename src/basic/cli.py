@@ -162,8 +162,7 @@ class CLI:
 
                 # Obtain the evaluated value for each expression in the list provided
                 for expression in allExpressions:
-                    print(expression[0])
-                    expression.append(Evaluator.evaluate(expression[0]))
+                    expression.append(Evaluator.evaluate(expression[0])[1])
 
                 # Sort the expressions according to value
                 sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
