@@ -53,7 +53,7 @@ class CLI(object):
             },
             {
                 'str': 'Sort the Expression in a file',
-                'method_name': 'method_2'
+                'method_name': '__update_file_sorter'
             },
             {
                 'str': "Look at the application's history",
@@ -409,7 +409,61 @@ class CLI(object):
             self.__refresh()
     
     def __update_file_sorter(self):
-        pass
+        self.__load_application_terminal_window('File Sorter', curses.color_pair(3))
+        self.__refresh()
+
+        expression_evaluator_prompt_str = "Press 'i' to start writing the file locations, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selectio menu"
+        self.__write_expression_visual_pad(expression_evaluator_prompt_str)
+        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
+        self.__application_terminal_window.scroll()
+
+        while True:
+            user_key = self.__application_terminal_window.getch()
+            if user_key in set([27]):
+                # Esc key, Return to selection
+                return
+            elif user_key in set([ord('v')]):
+                # v key, visual mode, Switch to looking at the history
+                self.__update_application_history_pad()
+                # Load expression again
+                self.__load_application_terminal_window('File Sorter', curses.color_pair(2))
+                self.__refresh()
+            elif user_key in set([ord('i')]):
+                # Insert mode, user writes their expression
+                # Setting for user input to show up
+                curses.echo()
+                curses.curs_set(1)
+                # Get the input folder location
+                # Prompt
+                input_file_location_prompt = "Input file location: "
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, input_file_location_prompt)
+                # User input
+                input_file_location_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                input_file_location_input = str(input_file_location_raw_input, "utf-8")
+                # Write the expression line to history
+                self.__write_expression_visual_pad(f"{input_file_location_prompt}{input_file_location_input}")
+
+                # Get the output folder location
+                # Prompt
+                output_file_location_prompt = "Output file location: "
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, output_file_location_prompt)
+                # User input
+                output_file_location_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                output_file_location_input = str(output_file_location_raw_input, "utf-8")
+                # Write the expression line to history
+                self.__write_expression_visual_pad(f"{output_file_location_prompt}{output_file_location_input}")
+
+                # Process the expression and do something
+                curses.noecho()
+                curses.curs_set(0)
+            else:
+                continue
+                
+            self.__write_expression_visual_pad(expression_evaluator_prompt_str)
+            self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
+            self.__application_terminal_window.scroll()
+
+            self.__refresh()
     
     def __write_expression_visual_pad(self, history_str):
         '''
