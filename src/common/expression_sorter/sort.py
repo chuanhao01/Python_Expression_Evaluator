@@ -6,7 +6,7 @@ deals with sorting the various expressions from the input file
 #* Features: Sort by Ascending / Descending       ( Order )
 '''
 
-from file import File
+from .file import File
 
 class Sort:
     def __init__(self, all_expr_list = None, sort_type = None, sort_order = None):
