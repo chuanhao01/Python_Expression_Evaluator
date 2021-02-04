@@ -264,8 +264,6 @@ class CLI(object):
                 y += 1
             self.__refresh()
             user_key = self.__selection_window.getch()
-            # self.__selection_window.addstr(y, x, str(user_key))
-            # self.__selection_window.addstr(y+1, x, str(curses.KEY_ENTER))
             if user_key in set([curses.KEY_UP, ord('w'), ord('k')]):
                 # For key up keypress
                 if current_index == 0:
@@ -298,7 +296,6 @@ class CLI(object):
                 self.__load_selection()
                 self.__refresh()
 
-    
     def __load_exit(self):
         '''
         Helper private function to load the default state of the exit
@@ -324,10 +321,6 @@ class CLI(object):
         x = width - len(s) // 2
         self.__exit_window.addstr(y, x, s)
         y += 1
-        # s = f"Bye. :D"
-        # x = width - len(s) // 2
-        # self.__exit_window.addstr(y, x, s)
-        # Refresh
         self.__refresh()
 
         # Countdown to leave
@@ -441,7 +434,6 @@ class CLI(object):
                     self.__application_history_pad_pos += 1
             elif user_key in set([ord('i')]):
                 return
-
 
     def __main(self, stdscr):
         self.__stdscr = stdscr
