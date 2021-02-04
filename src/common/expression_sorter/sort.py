@@ -57,14 +57,29 @@ class Sort:
 
         return all_expressions
 
-    
+    #* Check if there are multiple expressions with the same value
+    def check_same_value(self, expressionList):
+        prev_val = None
+        temp_arr = []
+
+        for expression in expressionList:
+            value = expression[1]
+
+            if prev_val == value:
+                temp_arr.append(expression)
+
+
+
+
     #* Sorting
 
     # 'Middleman' for mergeSort() method
     def sort(self):
         all_expressions = self.preprocess_expr()
 
-        return self.mergeSort(all_expressions)
+        sortedList = self.mergeSort(all_expressions)
+
+        return expression_list
 
     # Merge Sort WHEEEEEEEEE
     def mergeSort(self, expr_list):
