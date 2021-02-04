@@ -40,7 +40,10 @@ class CLI(object):
 
         # Configs
         self.__application_title = ['ST107 DSAA: Expression Evaluator & Sorter', 'Advance Application']
-        self.__application_instructions = ['Please use your arrow keys to hover over the option you want to select', 'The current select will be highlighted', 'Press enter to select the option']
+        self.__application_instructions = [
+            "For the selection menu: Use 'UP' and 'DOWN' arrow keys to navigate the menu. Press 'ENTER' to select and option",
+            "For the application history: Use the 'UP' and 'DOWN' arrow keys to move through the history. Press 'ESC' to leave the history"
+        ]
         self.__creator_names = ['Chuan Hao(1922264)', 'Sherisse(1935967)']
         self.__creator_class = 'DIT/FT/2B/11'
         self.__selection_options = [
@@ -88,7 +91,7 @@ class CLI(object):
         # Setting up color pairs
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE) # Selection highlight
         curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK) # Expression Evaluator
-        curses.init_pair(3, curses.COLOR_CYAN, curses.COLOR_BLACK) # Expression File Sorter
+        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK) # Expression File Sorter
         curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK) # Application History
         curses.init_pair(5, curses.COLOR_RED, curses.COLOR_BLACK) # Exit application
 
@@ -140,7 +143,6 @@ class CLI(object):
         # Expression
         self.__application_terminal_window.scrollok(True)
         self.__application_history_pad.scrollok(True)
-        # self.__application_terminal_window.setscrreg(0, self.__application_height - 3)
     
     def __set_up_panels(self):
         self.__selection_panel = panel.new_panel(self.__selection_window)
@@ -346,13 +348,13 @@ class CLI(object):
 
         return 1 # Returns exit code for the program to end
 
-    def __load_expression_evaluator(self):
+    def __load_application_terminal_window(self, current_application, current_application_attribute):
         curses.noecho()
         curses.curs_set(0)
         curses.cbreak()
 
-        self.__current_application = 'Expression Evaluator'
-        self.__current_application_attributes = curses.color_pair(2)
+        self.__current_application = current_application
+        self.__current_application_attributes = current_application_attribute
         self.__application_terminal_y = self.__application_terminal_window.getmaxyx()[0]
         self.__application_terminal_y -= 1
         self.__application_terminal_window.move(self.__application_terminal_y, self.__application_terminal_x)
@@ -360,35 +362,41 @@ class CLI(object):
         self.__update_application_panel(self.__application_terminal_panel)
 
     def __update_expression_evaluator(self):
-        self.__load_expression_evaluator()
+        self.__load_application_terminal_window('Expression Evaluator', curses.color_pair(2))
         self.__refresh()
 
-        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of your past evaluated expressions"
+        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selectio menu"
         self.__write_expression_visual_pad(expression_evaluator_prompt_str)
         self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
         self.__application_terminal_window.scroll()
 
         while True:
             user_key = self.__application_terminal_window.getch()
-            if user_key == 27:
+            if user_key in set([27]):
                 # Esc key, Return to selection
                 return
             elif user_key in set([ord('v')]):
-                # v key, visual mode, To look at history
+                # v key, visual mode, Switch to looking at the history
                 self.__update_application_history_pad()
                 # Load expression again
-                self.__load_expression_evaluator()
+                self.__load_application_terminal_window('Expression Evaluator', curses.color_pair(2))
                 self.__refresh()
             elif user_key in set([ord('i')]):
-                # Insert mode, start writing your expression
+                # Insert mode, user writes their expression
                 expression_prompt = "Your Expression: "
                 self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_prompt)
 
+                # Setting for user input to show up
                 curses.echo()
                 curses.curs_set(1)
+                # Get the expression typed in
                 expression_raw_input = self.__application_terminal_window.getstr() # Read as bytes
                 expression_input = str(expression_raw_input, "utf-8")
+
+                # Write the expression line to history
                 self.__write_expression_visual_pad(f"{expression_prompt}{expression_input}")
+
+                # Process the expression and do something
                 curses.noecho()
                 curses.curs_set(0)
             else:
@@ -399,6 +407,9 @@ class CLI(object):
             self.__application_terminal_window.scroll()
 
             self.__refresh()
+    
+    def __update_file_sorter(self):
+        pass
     
     def __write_expression_visual_pad(self, history_str):
         '''
@@ -425,14 +436,14 @@ class CLI(object):
         while True:
             self.__application_history_pad.refresh(self.__application_history_pad_pos - (self.__application_height - 2), 0, self.__header_height + 1, 1, self.__height - 2, self.__width - 1)
             user_key = self.__application_history_pad.getch()
-            if user_key in set([ord('k')]):
+            if user_key in set([curses.KEY_UP, ord('w'), ord('k')]):
                 # Move down
                 self.__application_history_pad_pos -= 1
-            elif user_key in set([ord('j')]):
+            elif user_key in set([curses.KEY_DOWN, ord('s'), ord('j')]):
                 # Move up
                 if self.__application_history_pad_pos < self.__history_length:
                     self.__application_history_pad_pos += 1
-            elif user_key in set([ord('i')]):
+            elif user_key in set([27, ord('i')]):
                 return
 
     def __main(self, stdscr):
