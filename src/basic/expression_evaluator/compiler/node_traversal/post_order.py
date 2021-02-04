@@ -1,41 +1,33 @@
 '''
     This Python File deals with printing the expression in InOrder
 
-    PreOrder:
+    PostOrder:
         left - right - root
 '''
 
 from ...nodes import NodeVisitor
 
 class PostOrder(NodeVisitor):
-    @staticmethod
-    def print_output(self, node, level = 0):
-        level += 1
+    def __init__(self, level = 0):
+        self.level = level
 
-        # Left sub-tree
-        if node.left_term != None:
-            #PreOrder.print_output(node.left_term, level)
-            self.visit(node.left_term)
+    def traverse(self, node):
+        if type(node).__name__ == "BinaryOp_Node":
+            self.level += 1
 
-        # Right sub-tree
-        if node.right_term != None:
-            #PreOrder.print_output(node.right_term, level)
-            self.visit(node.right_term)
+            # Left
+            self.traverse(node.left_term)
 
-        # Root
-        print(str(level * '~') +  str(node.token_value))
-    
+            # Right
+            self.traverse(node.right_term)
+            self.level -= 1
 
-    # Overriding the original visit() method in NodeVisitor
-    def visit(self, node, level):
-        node_name = type(node).__name__
-        method_name = f"visit_{node_name}"
+            # Root
+            print(str("~" * self.level) + " " + node.operator.token_value)
 
-        visit_method = getattr(self, method_name, self.visit_error)
-        return visit_method(node, level)
+        elif type(node).__name__ == "Number_Node":
+            print(str("~" * self.level) + " " + str(node.token_value))
+            return
 
-    def visit_Number_Node(self, node, level):
-        return node.token_value
-
-    def visit_BinaryOp_Node(self, node, level):
-        return PostOrder.print_output(node, level)
+        else:
+            self.visit_error(node)

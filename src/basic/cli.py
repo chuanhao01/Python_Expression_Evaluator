@@ -33,15 +33,6 @@ class CLI:
         return input("Enter choice: ")
 
     @staticmethod
-    def print_traversalSelection():
-        print("\nPlease select your choice <'1', '2', '3'>")
-        print("1. Pre Order Tree Traversal")
-        print("2. In Order Tree Traversal")
-        print("3. Post Order Tree Traversal")
-
-        return input("Enter choice: ")
-
-    @staticmethod
     def print_exit():
         print("\n Bye, thanks for using ST107 DSAA: Expression Evaluator & Sorter")
 
@@ -56,19 +47,29 @@ class CLI:
     @staticmethod
     def print_inputExpression():
         return input("Please enter the expression you want to evaluate: \n")
+        
+    @staticmethod
+    def print_traversalSelection():
+        print("\nPlease select your choice <'1', '2', '3'>")
+        print("1. Pre Order Tree Traversal")
+        print("2. In Order Tree Traversal")
+        print("3. Post Order Tree Traversal")
+
+        return input("Enter choice: ")
 
     @staticmethod
     def print_parseTree(traversalChoice, ast):
-        print("\n")        
         if traversalChoice == "1":
             preorder = PreOrder()
-            preorder.print_output(node = ast)
+            preorder.traverse(node = ast)
 
         elif traversalChoice == "2":
-            InOrder.print_output(node = ast)
+            inorder = InOrder()
+            inorder.traverse(node = ast)
 
         elif traversalChoice == "3":
-            PostOrder.print_output(node = ast)
+            postorder = PostOrder()
+            postorder.traverse(node = ast)
 
     @staticmethod
     def print_evaluateResult(result):
