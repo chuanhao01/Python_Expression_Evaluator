@@ -165,19 +165,19 @@ class Lexer(object):
         #! The next char does not have a recognised token type
         self.error()
 
-        def get_all_tokens(self):
-            #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens
+    def get_all_tokens(self):
+        #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens
 
-            # The starting token is always an INIT
-            init_token = Token(INIT, None)
-            tokens = [init_token]
+        # The starting token is always an INIT
+        init_token = Token(INIT, None)
+        tokens = [init_token]
 
-            while True:
-                current_token = self.get_next_token()
-                tokens.append(current_token)
+        while True:
+            current_token = self.get_next_token()
+            tokens.append(current_token)
 
-                # The last token is always an EOF
-                if current_token.token_type == EOF:
-                    break
+            # The last token is always an EOF
+            if current_token.token_type == EOF:
+                break
 
-            return tokens
+        return tokens

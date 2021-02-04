@@ -14,8 +14,4 @@ class Evaluator:
         interpreter = Interpreter(parser)
 
         # Obtaining the result
-        print(interpreter.interpret())
-
-
-expr = input("Expression: ")
-Evaluator.evaluate(expr)
+        return interpreter.interpret()
