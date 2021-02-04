@@ -25,7 +25,7 @@ class CLI:
 
     @staticmethod
     def print_selectionScreen():
-        print("Please select your choice <'1', '2', '3'>")
+        print("Please select your choice <'1', '2', '3'>:")
         print("\t 1. Evaluate expression")
         print("\t 2. Sort expressions")
         print("\t 3. Exit")
@@ -34,11 +34,11 @@ class CLI:
 
     @staticmethod
     def print_exit():
-        print("\n Bye, thanks for using ST107 DSAA: Expression Evaluator & Sorter")
+        print("\nBye, thanks for using ST107 DSAA: Expression Evaluator & Sorter")
 
     @staticmethod
     def print_continue():
-        print("\n Press any key to continue....")
+        print("\nPress any key to continue....")
         input()
 
 
@@ -50,15 +50,17 @@ class CLI:
         
     @staticmethod
     def print_traversalSelection():
-        print("\nPlease select your choice <'1', '2', '3'>")
-        print("1. Pre Order Tree Traversal")
-        print("2. In Order Tree Traversal")
-        print("3. Post Order Tree Traversal")
+        print("\nPlease select your choice <'1', '2', '3'>:")
+        print("\t 1. Pre Order Tree Traversal")
+        print("\t 2. In Order Tree Traversal")
+        print("\t 3. Post Order Tree Traversal")
 
         return input("Enter choice: ")
 
     @staticmethod
     def print_parseTree(traversalChoice, ast):
+        print("\nExpression Tree:")
+
         if traversalChoice == "1":
             preorder = PreOrder()
             preorder.traverse(node = ast)
@@ -73,7 +75,7 @@ class CLI:
 
     @staticmethod
     def print_evaluateResult(result):
-        print("\n Expression evaluates to:")
+        print("\nExpression evaluates to:")
         print(result)
 
     
@@ -114,7 +116,6 @@ class CLI:
                 expression = CLI.print_inputExpression()
                 #TODO: Add validation for expression that will prompt for another input if error raised in compiler
 
-                #TODO: Get Parse Tree
                 traversalChoice = -1
 
                 while traversalChoice not in ['1', '2', '3']:
@@ -123,7 +124,6 @@ class CLI:
                 ast, result = Evaluator.evaluate(expression)
                 CLI.print_parseTree(traversalChoice, ast)
                 CLI.print_evaluateResult(result)
-
 
                 CLI.print_continue()
 
