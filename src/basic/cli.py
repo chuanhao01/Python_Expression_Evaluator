@@ -1,6 +1,12 @@
 '''
     This Python File deals with the CLI of the application
+
+    It also contains a CLI class that will have the different necessary print statements for each section identified
 '''
+
+from .expression_evaluator.compiler import Lexer, Parser, Interpreter
+from .expression_evaluator.compiler.node_traversal import PreOrder, InOrder, PostOrder
+from ..common.expression_sorter import File, Sort
 
 class CLI:
     #* General
@@ -66,37 +72,3 @@ class CLI:
         print("RESULT HERE")
  
         print(">>> Evaluating and Sorting completed!")
-
-    
-if __name__ == "__main__":
-    CLI.print_header()
-    
-    choice = -1
-    done = False
-
-    while not done:
-        # Reset the choice for next selection
-        choice = -1
-
-        while choice not in ['1', '2', '3']:
-            choice = CLI.print_selectionScreen()
-
-        if choice == '1':
-            #TODO: Add validation for expression that will prompt for another input if error raised in compiler
-            expression = CLI.print_inputExpression()
-            CLI.print_evaluateResult(expression)
-
-            CLI.print_continue()
-
-        if choice == '2':
-            #TODO: Add valdiation for input, output files
-            input_file, output_file = CLI.print_getFiles()
-            CLI.print_sortResult()
-
-            CLI.print_continue()
-
-        if choice == '3':
-            CLI.print_exit()
-            done = True
-
-        
