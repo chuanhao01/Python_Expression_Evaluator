@@ -8,39 +8,25 @@
 from ...nodes import NodeVisitor
 
 class PreOrder(NodeVisitor):
-    def __init__(self):
-        pass
+    def __init__(self, level = 0):
+        self.level = level
 
-    def print_output(self, node, level = 0):
-        level += 1
-
-        # Root
+    def traverse(self, node):
         if type(node).__name__ == "BinaryOp_Node":
-            node = self.visit_BinaryOp_Node(node, level)
+            # Root
+            print(str("~" * self.level) + " " + node.operator.token_value)
+            self.level += 1
 
-        print(str(level * '~') +  str(node.token_value))
+            # Left
+            self.traverse(node.left_term)
+            
+            # Right
+            self.traverse(node.right_term)
+            self.level -= 1
 
-        # Left sub-tree
-        if node.left_term != None:
-            #PreOrder.print_output(node.left_term, level)
-            self.visit(node.left_term, level)
+        elif type(node).__name__ == "Number_Node":
+            print(str("~" * self.level) + " " + str(node.token_value))
+            return
 
-        # Right sub-tree
-        if node.right_term != None:
-            #PreOrder.print_output(node.right_term, level)
-            self.visit(node.right_term, level)
-
-    
-    # Overriding the original visit() method in NodeVisitor
-    def visit(self, node, level):
-        node_name = type(node).__name__
-        method_name = f"visit_{node_name}"
-
-        visit_method = getattr(self, method_name, self.visit_error)
-        return visit_method(node, level)
-
-    def visit_Number_Node(self, node, level):
-        return node.token_value
-
-    def visit_BinaryOp_Node(self, node, level):
-        return self.print_output(node, level)
+        else:
+            self.visit_error(node)
