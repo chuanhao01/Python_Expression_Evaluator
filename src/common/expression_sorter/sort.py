@@ -2,10 +2,8 @@
 This is the Python File containing the Sort class that
 deals with sorting the various expressions from the input file
 
-#TODO: Sort by Value, Length, Digit Order   ( Type )
-#TODO: Sort by Ascending / Descending       ( Order )
-
-#TODO: Find some way to link the sorted list back to the full expression
+#* Features: Sort by Value, Length, Digit Order   ( Type )
+#* Features: Sort by Ascending / Descending       ( Order )
 '''
 
 from file import File
