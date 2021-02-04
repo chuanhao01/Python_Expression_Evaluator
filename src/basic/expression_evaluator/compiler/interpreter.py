@@ -31,4 +31,4 @@ class Interpreter(NodeVisitor):
         if ast == None:
             return None
 
-        return self.visit(ast)
+        return (ast, self.visit(ast))

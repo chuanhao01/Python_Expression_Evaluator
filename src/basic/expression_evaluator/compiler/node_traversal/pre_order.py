@@ -8,22 +8,27 @@
 from ...nodes import NodeVisitor
 
 class PreOrder(NodeVisitor):
-    @staticmethod
+    def __init__(self):
+        pass
+
     def print_output(self, node, level = 0):
         level += 1
 
         # Root
+        if type(node).__name__ == "BinaryOp_Node":
+            node = self.visit_BinaryOp_Node(node, level)
+
         print(str(level * '~') +  str(node.token_value))
 
         # Left sub-tree
         if node.left_term != None:
             #PreOrder.print_output(node.left_term, level)
-            self.visit(node.left_term)
+            self.visit(node.left_term, level)
 
         # Right sub-tree
         if node.right_term != None:
             #PreOrder.print_output(node.right_term, level)
-            self.visit(node.right_term)
+            self.visit(node.right_term, level)
 
     
     # Overriding the original visit() method in NodeVisitor
@@ -38,4 +43,4 @@ class PreOrder(NodeVisitor):
         return node.token_value
 
     def visit_BinaryOp_Node(self, node, level):
-        return PreOrder.print_output(node, level)
+        return self.print_output(node, level)

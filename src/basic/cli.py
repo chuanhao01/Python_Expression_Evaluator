@@ -5,7 +5,7 @@
 '''
 
 #* Importing Modules
-from .expression_evaluator.compiler.evaluator import Evaluator
+from .expression_evaluator.evaluator import Evaluator
 from .expression_evaluator.compiler.node_traversal import PreOrder, InOrder, PostOrder
 from ..common.expression_sorter import File, Sort
 
@@ -34,10 +34,10 @@ class CLI:
 
     @staticmethod
     def print_traversalSelection():
-        print("\n Please select your choice <'1', '2', '3'>")
-        print("Pre Order Tree Traversal")
-        print("In Order Tree Traversal")
-        print("Post Order Tree Traversal")
+        print("\nPlease select your choice <'1', '2', '3'>")
+        print("1. Pre Order Tree Traversal")
+        print("2. In Order Tree Traversal")
+        print("3. Post Order Tree Traversal")
 
         return input("Enter choice: ")
 
@@ -56,6 +56,19 @@ class CLI:
     @staticmethod
     def print_inputExpression():
         return input("Please enter the expression you want to evaluate: \n")
+
+    @staticmethod
+    def print_parseTree(traversalChoice, ast):
+        print("\n")        
+        if traversalChoice == "1":
+            preorder = PreOrder()
+            preorder.print_output(node = ast)
+
+        elif traversalChoice == "2":
+            InOrder.print_output(node = ast)
+
+        elif traversalChoice == "3":
+            PostOrder.print_output(node = ast)
 
     @staticmethod
     def print_evaluateResult(result):
@@ -81,5 +94,45 @@ class CLI:
         print(">>> Evaluating and Sorting completed!")
 
     
+    #TODO: CHANGE THIS TO A NORMAL METHOD
     @staticmethod
     def run():
+        CLI.print_header()
+
+        choice = -1
+        done = False
+
+        while not done:
+            # Reset the choice for next selection
+            choice = -1
+
+            while choice not in ['1', '2', '3']:
+                choice = CLI.print_selectionScreen()
+
+            if choice == '1':
+                expression = CLI.print_inputExpression()
+                #TODO: Add validation for expression that will prompt for another input if error raised in compiler
+
+                #TODO: Get Parse Tree
+                traversalChoice = -1
+
+                while traversalChoice not in ['1', '2', '3']:
+                    traversalChoice = CLI.print_traversalSelection()
+
+                ast, result = Evaluator.evaluate(expression)
+                CLI.print_parseTree(traversalChoice, ast)
+                CLI.print_evaluateResult(result)
+
+
+                CLI.print_continue()
+
+            elif choice == '2':
+                #TODO: Add valdiation for input, output files
+                input_file, output_file = CLI.print_getFiles()
+                CLI.print_sortResult()
+
+                CLI.print_continue()
+
+            elif choice == '3':
+                CLI.print_exit()
+                done = True
