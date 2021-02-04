@@ -4,9 +4,11 @@
     It also contains a CLI class that will have the different necessary print statements for each section identified
 '''
 
-from .expression_evaluator.compiler import Lexer, Parser, Interpreter
+#* Importing Modules
+from .expression_evaluator.compiler.evaluator import Evaluator
 from .expression_evaluator.compiler.node_traversal import PreOrder, InOrder, PostOrder
 from ..common.expression_sorter import File, Sort
+
 
 class CLI:
     #* General
@@ -28,6 +30,15 @@ class CLI:
         print("\t 2. Sort expressions")
         print("\t 3. Exit")
         
+        return input("Enter choice: ")
+
+    @staticmethod
+    def print_traversalSelection():
+        print("\n Please select your choice <'1', '2', '3'>")
+        print("Pre Order Tree Traversal")
+        print("In Order Tree Traversal")
+        print("Post Order Tree Traversal")
+
         return input("Enter choice: ")
 
     @staticmethod
@@ -68,3 +79,7 @@ class CLI:
         print("RESULT HERE")
  
         print(">>> Evaluating and Sorting completed!")
+
+    
+    @staticmethod
+    def run():
