@@ -44,7 +44,7 @@ class Sort:
 
         self.__sort_order = sort_order
 
-    #* 'Preprocessing' expression - get evaluated value, get length of expression, remove whitespaces
+    #* 'Preprocessing' expression - get length of expression, remove whitespaces
     def preprocess_expr(self):
         all_expressions = self.get_all_expr_list()
 
@@ -52,8 +52,7 @@ class Sort:
             # Removing whitespaces
             expression[0] = expression[0].replace(" ", "")
 
-            # Appending evaluated value and length of expression
-            expression.append(eval(expression[0]))
+            # Appending length of expression
             expression.append(len(str(expression[0])))
 
         return all_expressions
