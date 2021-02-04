@@ -5,6 +5,7 @@
 '''
 
 #* Importing Modules
+import os.path
 from .expression_evaluator.evaluator import Evaluator
 from .expression_evaluator.compiler.node_traversal import PreOrder, InOrder, PostOrder
 from ..common.expression_sorter import File, Sort
@@ -83,10 +84,35 @@ class CLI:
 
     @staticmethod
     def print_getFiles():
-        input_file = input("Please enter input file: ")
-        output_file = input("Please enter output file: ")
+        input_file = ""
+        output_file = ""
+
+        while not os.path.exists(input_file):
+            input_file = input("Please enter input file: ")
+
+        while not os.path.exists(output_file):
+            output_file = input("Please enter output file: ")
 
         return (input_file, output_file)
+
+    @staticmethod
+    def print_sortSettings():
+        choice = -1
+
+        while choice not in ['1', '2']:
+            print("Please enter your choice <'1', '2'>:")
+            print("\t 1. Sort by Ascending")
+            print("\t 2. Sort by Descending")
+
+            choice = input("Enter choice: ")
+
+        if choice == '1':
+            sort_order = "ascending"
+
+        else:
+            sort_order = "descending"
+
+        return sort_order
 
     @staticmethod
     def print_sortResult():
@@ -128,8 +154,23 @@ class CLI:
                 CLI.print_continue()
 
             elif choice == '2':
-                #TODO: Add valdiation for input, output files
                 input_file, output_file = CLI.print_getFiles()
+                sort_type = "value"
+                sort_order = CLI.print_sortSettings()
+                
+                allExpressions = File.read(input_file)
+
+                # Obtain the evaluated value for each expression in the list provided
+                for expression in allExpressions:
+                    print(expression[0])
+                    expression.append(Evaluator.evaluate(expression[0]))
+
+                # Sort the expressions according to value
+                sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
+                sortedList = sort.sort()
+
+                print(sortedList)
+
                 CLI.print_sortResult()
 
                 CLI.print_continue()

@@ -57,6 +57,7 @@ class Sort:
             expression.append(len(str(expression[0])))
 
         return all_expressions
+
     
     #* Sorting
 
