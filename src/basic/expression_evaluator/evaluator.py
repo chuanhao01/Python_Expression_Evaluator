@@ -3,10 +3,7 @@ This Python file deals with the evaluation of expressions and,
 integrates the lexer, parser and interpreter together
 '''
 
-from .compiler import *
-from .nodes import *
-from .tokens import *
-
+from .compiler import Lexer, Parser, Interpreter
 
 class Evaluator:
     @staticmethod
