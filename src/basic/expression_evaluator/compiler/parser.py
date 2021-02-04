@@ -3,8 +3,9 @@ This Python File contains the main 'Parser' class that will:
 parse the sequence of tokens from the lexer and check the grammer
 '''
 
-from ..tokens import *
-from ..nodes import *
+from ..tokens import Token
+from ..tokens import INIT, EOF, WHITESPACE, OPERATOR, NUMBER, PLUS, MINUS, MUL, DIV, POWER, LPARAN, RPARAN, DOT 
+from ..nodes import Number_Node, BinaryOp_Node
 from .lexer import Lexer
 
 accepted_operators = [PLUS, MINUS, MUL, DIV, POWER]

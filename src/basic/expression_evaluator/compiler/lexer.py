@@ -6,7 +6,8 @@
 #! Take note that there will be no checking of the syntax of the input expression in this class
 ''' 
 
-from ..tokens import *
+from ..tokens import Token
+from ..tokens import INIT, EOF, WHITESPACE, OPERATOR, NUMBER, PLUS, MINUS, MUL, DIV, POWER, LPARAN, RPARAN, DOT 
 
 class Lexer(object):
     def __init__(self, text):

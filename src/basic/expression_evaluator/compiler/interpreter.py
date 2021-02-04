@@ -1,6 +1,6 @@
 
-from ..tokens import *
-from ..nodes import *
+from ..tokens import PLUS, MINUS, MUL, DIV, POWER
+from ..nodes import NodeVisitor
 from .lexer import Lexer
 from .parser import Parser
 
