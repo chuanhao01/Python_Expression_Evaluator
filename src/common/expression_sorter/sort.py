@@ -136,36 +136,3 @@ class Sort:
                 merge_index += 1
 
         return expr_list
-
-
-
-if __name__ == "__main__":
-    all_expressions = File.read(filename = './testCases.txt')
-
-    sort = Sort(all_expressions)
-    '''
-    print("Sort by Value in Ascending Order")
-    sort.set_sort_order("ascending")
-    sort.set_sort_type("value")
-    print(sort.sort())
-
-    print()
-
-    print("Sort by Value in Descending Order")
-    sort.set_sort_order("descending")
-    sort.set_sort_type("value")
-    print(sort.sort())   
-    
-    print()
-    '''
-    print("Sort by Length in Ascending Order")
-    sort.set_sort_order("ascending")
-    sort.set_sort_type("length")
-    print(sort.sort())   
-    
-    print()
-
-    print("Sort by Length in Descending Order")
-    sort.set_sort_order("descending")
-    sort.set_sort_type("length")
-    print(sort.sort())   
