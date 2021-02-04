@@ -58,7 +58,6 @@ class Parser(object):
 
     def expr(self):
         ''' LPARAN TERM ( (OPERATOR) TERM )* RPARAN '''
-        print(f"expr: {self.current_token}")
 
         # Performing a check for INIT token
         # If INIT Token is found, raise an error

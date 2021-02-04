@@ -32,7 +32,7 @@ class CLI:
 
     @staticmethod
     def print_exit():
-        print("Bye, thanks for using ST107 DSAA: Expression Evaluator & Sorter")
+        print("\n Bye, thanks for using ST107 DSAA: Expression Evaluator & Sorter")
 
     @staticmethod
     def print_continue():
@@ -47,13 +47,9 @@ class CLI:
         return input("Please enter the expression you want to evaluate: \n")
 
     @staticmethod
-    def print_evaluateResult(expression):
-        print("PRINT THE AST")
-
-        print("Expression evaluates to:")
-
-        #! Change this to evaluating using the parse tree
-        print(eval(expression))
+    def print_evaluateResult(result):
+        print("\n Expression evaluates to:")
+        print(result)
 
     
     #* Expression Sorter

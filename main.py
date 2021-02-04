@@ -1,5 +1,8 @@
 
+#* Importing Modules
+
 from src.basic.cli import CLI
+from src.basic.expression_evaluator.evaluator import Evaluator
 
 #! Just having the basic application only - add advanced later
 CLI.print_header()
@@ -15,9 +18,13 @@ while not done:
         choice = CLI.print_selectionScreen()
 
     if choice == '1':
-        #TODO: Add validation for expression that will prompt for another input if error raised in compiler
         expression = CLI.print_inputExpression()
-        CLI.print_evaluateResult(expression)
+        #TODO: Add validation for expression that will prompt for another input if error raised in compiler
+
+        #TODO: Get Parse Tree
+
+        result = Evaluator.evaluate(expression)
+        CLI.print_evaluateResult(result)
 
         CLI.print_continue()
 

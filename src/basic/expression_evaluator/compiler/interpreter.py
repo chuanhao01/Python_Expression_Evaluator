@@ -12,7 +12,7 @@ class Interpreter(NodeVisitor):
         return node.token_value
 
     def visit_BinaryOp_Node(self, node):
-        token_type = node.op.token_type
+        token_type = node.operator.token_type
 
         if token_type == PLUS:
             return self.visit(node.left_term) + self.visit(node.right_term)
