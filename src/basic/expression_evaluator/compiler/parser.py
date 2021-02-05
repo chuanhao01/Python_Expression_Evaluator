@@ -35,7 +35,7 @@ class Parser(object):
         elif error_type == "factor_error":
             raise SystemError("An unexpected error has occurred in the Parser.. Please check your NUMBER inputs\n")
 
-        elif error_type == "incorrect_paranthesis":
+        elif error_type == "incorrect_paranthesis" or error_type == "!EOF":
             raise SyntaxError("The expression provided is not a legal fully paranthesised expression\n")
 
         else:
@@ -92,7 +92,7 @@ class Parser(object):
         if isinstance(left_term, str):
             return left_term
 
-        while self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
+        if self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
             # Peek and make sure that the next token is not an OPERATOR 
             # (with the exception of MINUS due to MINUS FACTOR)
             # If it is an operator, raise and error
@@ -114,11 +114,11 @@ class Parser(object):
                 self.eat(POWER)
 
             right_term = self.term()
-            #! Error message returned
-            if isinstance(right_term, str):
-                return right_term
-
             node = BinaryOp_Node(left_term, node, right_term)
+            
+            if self.current_token.token_type != RPARAN:
+                error_type = "incorrect_paranthesis"
+                self.error(error_type)
 
         if node == None:
             return left_term
@@ -177,11 +177,8 @@ class Parser(object):
 
     def parse(self):
         #* Parse the stream of tokens, checking the grammer
+        print("Parser")
 
-        #! Checking if there was an error returned from the lexer
-        if isinstance(self.all_tokens, str):
-            return self.all_tokens
-        
         # Perform a check of the Paranthesis count before starting any parsing
         left_paran_count = right_paran_count = 0
         for token in self.all_tokens:
@@ -197,4 +194,6 @@ class Parser(object):
         # If this point is reached, the paranthesis check has passed
         # As such, "eat" the INIT token and start parsing
         self.eat(INIT)
-        return self.expr()
+        ast = self.expr()
+
+        return ast

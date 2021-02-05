@@ -29,7 +29,7 @@ class Lexer(object):
             raise Exception(f"Lexical Error: Support for the {character} operator has not yet been implemented\n")
 
         elif error_type == "invalid_float":
-            raise Exception(f"Lexical Error: Invalid float / integer value: {character}\n")
+            raise Exception(f"Lexical Error: Invalid float / integer value(s)\n")
 
         else:
             raise SystemError("An unexpected error has occurred in the Lexer.. Please try again\n")
@@ -124,7 +124,7 @@ class Lexer(object):
             number_value += self.current_char
 
         # Float Number
-        if self.peek() == ".":
+        if self.check_token_type(self.peek()) == DOT:
             number_value += "."
             self.advance()
 
@@ -137,6 +137,10 @@ class Lexer(object):
             while self.check_token_type(self.peek()) == NUMBER:
                 self.advance()
                 number_value += self.current_char
+
+                if self.check_token_type(self.peek()) == DOT:
+                    error_type = "invalid_float"
+                    self.error(error_type, self.current_token_value)
 
         self.current_token_value = float(number_value)
         self.advance()
@@ -191,11 +195,6 @@ class Lexer(object):
 
         while True:
             current_token = self.get_next_token()
-
-            #! This is an error message
-            if isinstance(current_token, str):
-                return current_token
-
             tokens.append(current_token)
 
             # The last token is always an EOF
