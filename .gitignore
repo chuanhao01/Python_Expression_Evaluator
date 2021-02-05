@@ -3,6 +3,10 @@
 
 # DLL files
 __pycache__/
+**.pyc
 
 # Vscode settings
 .vscode/
+
+# Test files folder
+**testFiles
