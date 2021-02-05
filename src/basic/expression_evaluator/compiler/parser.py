@@ -21,25 +21,25 @@ class Parser(object):
 
     def error(self, error_type):
         if error_type == "non-matching_token_types" or error_type == "internal_error":
-            return "An internal error has occurred in the parser.. Please try again\n"
+            raise SystemError("An internal error has occurred in the parser.. Please try again\n")
 
         elif error_type == "multiple_consecutive_operators":
-            return "Syntax Error: There are multiple consecutive operators in your expression..\n"
+            raise SyntaxError("There are multiple consecutive operators in your expression..\n")
 
         elif error_type == "multiple_consecutive_numbers":
-            return "Syntax Error: There are multiple consecutive numbers in your expression with no operators between..\n"
+            raise SyntaxError("There are multiple consecutive numbers in your expression with no operators between..\n")
 
         elif error_type == "term_error":
-            return "Syntax Error: Multiple expressions detected.. Please try again\n"
+            raise SyntaxError("Multiple expressions detected.. Please try again\n")
 
         elif error_type == "factor_error":
-            return "An unexpected error has occurred in the Parser.. Please check your NUMBER inputs\n"
+            raise SystemError("An unexpected error has occurred in the Parser.. Please check your NUMBER inputs\n")
 
         elif error_type == "incorrect_paranthesis":
-            return "Syntax Error: The expression provided is not a legal fully paranthesised expression\n"
+            raise SyntaxError("The expression provided is not a legal fully paranthesised expression\n")
 
         else:
-            return "An unexpected error has occurred in the Parser.. Please try again\n"
+            raise SystemError("An unexpected error has occurred in the Parser.. Please try again\n")
 
 
     def advance(self):
@@ -71,7 +71,7 @@ class Parser(object):
 
         else:
             error_type = "non-matching_token_types"
-            return self.error(error_type)
+            self.error(error_type)
 
 
     #* Grammer
@@ -84,7 +84,7 @@ class Parser(object):
         # This should only occur if this is called separately from self.parse()
         if self.current_token.token_type == INIT:
             error_type = "internal_error"
-            return self.error(error_type)
+            self.error(error_type)
 
         node = None
         left_term = self.term()
@@ -98,23 +98,20 @@ class Parser(object):
             # If it is an operator, raise and error
             if self.peek().token_type in [PLUS, MUL, DIV, POWER]:
                 error_type = "multiple_consecutive_operators"
-                return self.error(error_type)
+                self.error(error_type)
 
             node = self.current_token
             
             if self.current_token.token_type == PLUS:
-                error_msg = self.eat(PLUS)
+                self.eat(PLUS)
             elif self.current_token.token_type == MINUS:
-                error_msg = self.eat(MINUS)
+                self.eat(MINUS)
             elif self.current_token.token_type == MUL:
-                error_msg = self.eat(MUL)
+                self.eat(MUL)
             elif self.current_token.token_type == DIV:
-                error_msg = self.eat(DIV)
+                self.eat(DIV)
             elif self.current_token.token_type == POWER:
-                error_msg = self.eat(POWER)
-
-            if error_msg != None:
-                return error_msg
+                self.eat(POWER)
 
             right_term = self.term()
             #! Error message returned
@@ -133,9 +130,7 @@ class Parser(object):
 
         # EXPR
         if self.current_token.token_type == LPARAN:
-            error_msg = self.eat(LPARAN)
-            if error_msg != None:
-                return error_msg
+            self.eat(LPARAN)
 
             node = self.expr()
             return node
@@ -147,7 +142,7 @@ class Parser(object):
 
         else:
             error_type = "term_error"
-            return self.error(error_type)
+            self.error(error_type)
 
     def factor(self):
         ''' MINUS FACTOR | NUMBER '''
@@ -159,30 +154,23 @@ class Parser(object):
             #* If it is, raise an error
             if self.peek().token_type == NUMBER:
                 error_type = "multiple_consecutive_numbers"
-                return self.error(error_type)
+                self.error(error_type)
 
-            error_msg = self.eat(NUMBER)
-            if error_msg != None:
-                return error_msg
+            self.eat(NUMBER)
             return Number_Node(node)
         
         # MINUS FACTOR
         if node.token_type == MINUS:
-            error_msg = self.eat(MINUS)
-            if error_msg != None:
-                return error_msg
+            self.eat(MINUS)
 
             self.current_token.token_value *= -1
             node = self.current_token
 
             self.eat(NUMBER)
-            if error_msg != None:
-                return error_msg
-
             return Number_Node(node)
 
         error_type = "factor_error"
-        return self.error(error_type)
+        self.error(error_type)
 
 
     #* Main
@@ -204,11 +192,9 @@ class Parser(object):
 
         if left_paran_count != right_paran_count or (left_paran_count + right_paran_count) % 2 != 0 or left_paran_count < 1 or right_paran_count < 1:
             error_type = "incorrect_paranthesis"
-            return self.error(error_type)
+            self.error(error_type)
 
         # If this point is reached, the paranthesis check has passed
         # As such, "eat" the INIT token and start parsing
-        error_msg = self.eat(INIT)
-        if error_msg != None:
-            return error_msg
+        self.eat(INIT)
         return self.expr()

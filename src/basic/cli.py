@@ -87,11 +87,15 @@ class CLI:
         input_file = ""
         output_file = ""
 
+        print("\nPlease enter your input and output files below..")
+        print("Please note that only .txt files are accepted, you may omit '.txt' in your inputs\n")
         while not os.path.exists(input_file):
             input_file = input("Please enter input file: ")
+            input_file += ".txt"
 
         while not os.path.exists(output_file):
             output_file = input("Please enter output file: ")
+            output_file += ".txt"
 
         return (input_file, output_file)
 
@@ -100,7 +104,7 @@ class CLI:
         choice = -1
 
         while choice not in ['1', '2']:
-            print("Please enter your choice <'1', '2'>:")
+            print("\nPlease enter your choice <'1', '2'>:")
             print("\t 1. Sort by Ascending")
             print("\t 2. Sort by Descending")
 
@@ -145,18 +149,23 @@ class CLI:
                 choice = CLI.print_selectionScreen()
 
             if choice == '1':
-                expression = CLI.print_inputExpression()
-                traversalChoice = -1
+                expression_evaluated = False
 
-                while traversalChoice not in ['1', '2', '3']:
-                    traversalChoice = CLI.print_traversalSelection()
+                # Continue trying to get a valid expression input from the user as long as there was an error raised
+                while not expression_evaluated:
+                    try:
+                        expression = CLI.print_inputExpression()
+                        traversalChoice = -1
 
-                ast, result = Evaluator.evaluate(expression)
+                        while traversalChoice not in ['1', '2', '3']:
+                            traversalChoice = CLI.print_traversalSelection()
 
-                #! If there was an error returned from the compiler
-                if isinstance(result, str):
-                    print(result)
-                    continue
+                        ast, result = Evaluator.evaluate(expression)
+                    except Exception as error:
+                        print(error)
+                        continue
+
+                    expression_evaluated = True
 
                 CLI.print_parseTree(traversalChoice, ast)
                 CLI.print_evaluateResult(result)
@@ -172,7 +181,13 @@ class CLI:
 
                 # Obtain the evaluated value for each expression in the list provided
                 for expression in allExpressions:
-                    expression.append(Evaluator.evaluate(expression[0])[1])
+                    try:
+                        expression.append(Evaluator.evaluate(expression[0])[1])
+                    except Exception as error:
+                        print(f"There was an invalid expression in {input_file}.. The specific error is as follows:")
+                        print(error)
+                        exit()
+                        break
 
                 # Sort the expressions according to value
                 sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)

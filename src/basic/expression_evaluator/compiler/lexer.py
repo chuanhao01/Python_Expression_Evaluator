@@ -23,16 +23,16 @@ class Lexer(object):
 
     def error(self, error_type, character):
         if error_type == "unrecognised_token_type":
-            return f"Lexical Error: {character} is not a valid character\n"
+            raise Exception(f"Lexical Error: Invalid character(s) detected\n")
 
         elif error_type == "unrecognised_operator":
-            return f"Lexical Error: Support for the {character} operator has not yet been implemented\n"
+            raise Exception(f"Lexical Error: Support for the {character} operator has not yet been implemented\n")
 
         elif error_type == "invalid_float":
-            return f"Lexical Error: Invalid float / integer value: {character}\n"
+            raise Exception(f"Lexical Error: Invalid float / integer value: {character}\n")
 
         else:
-            return "An unexpected error has occurred in the Lexer.. Please try again\n"
+            raise SystemError("An unexpected error has occurred in the Lexer.. Please try again\n")
 
 
     def check_token_type(self, char):
@@ -61,7 +61,7 @@ class Lexer(object):
 
         #! The character passed in does not match any token type, raise an error
         error_type = "unrecognised_token_type"
-        return self.error(error_type, char)
+        self.error(error_type, char)
 
     def peek(self):
         #* "Peek" into the next character of the input expression and,
@@ -132,7 +132,7 @@ class Lexer(object):
             #! Raise an error
             if self.check_token_type(self.peek()) != NUMBER:
                 error_type = "invalid_float"
-                return self.error(error_type, self.current_token_value)
+                self.error(error_type, self.current_token_value)
 
             while self.check_token_type(self.peek()) == NUMBER:
                 self.advance()
@@ -141,8 +141,6 @@ class Lexer(object):
         self.current_token_value = float(number_value)
         self.advance()
 
-        return None
-    
     def get_next_token(self):
         #* Gets and returns the next token of the input string
         #* If the next token is a WHITESPACE, continue advancing to the next non-WHITESPACE token
@@ -176,17 +174,13 @@ class Lexer(object):
         
         # NUMBER
         elif self.current_token_type == DOT or self.current_token_type == NUMBER:
-            error_msg = self.get_number()
-
-            if error_msg == None:
-                return Token(NUMBER, self.current_token_value)
-            else:
-                return error_msg
+            self.get_number()
+            return Token(NUMBER, self.current_token_value)
 
         #! If this point is reached,
         #! The next char does not have a recognised token type
         error_type = "unrecognised_token_type"
-        return self.error(error_type, self.current_token_value)
+        self.error(error_type, self.current_token_value)
 
     def get_all_tokens(self):
         #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens
