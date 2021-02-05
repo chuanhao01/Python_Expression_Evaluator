@@ -7,3 +7,6 @@ __pycache__/
 
 # Vscode settings
 .vscode/
+
+# Test files folder
+**testFiles

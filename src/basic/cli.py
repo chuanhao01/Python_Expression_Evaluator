@@ -88,14 +88,11 @@ class CLI:
         output_file = ""
 
         print("\nPlease enter your input and output files below..")
-        print("Please note that only .txt files are accepted, you may omit '.txt' in your inputs\n")
         while not os.path.exists(input_file):
             input_file = input("Please enter input file: ")
-            input_file += ".txt"
 
         while not os.path.exists(output_file):
             output_file = input("Please enter output file: ")
-            output_file += ".txt"
 
         return (input_file, output_file)
 
