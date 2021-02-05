@@ -8,7 +8,6 @@ from ..tokens import INIT, EOF, WHITESPACE, OPERATOR, NUMBER, PLUS, MINUS, MUL, 
 from ..nodes import Number_Node, BinaryOp_Node
 from .lexer import Lexer
 
-accepted_operators = [PLUS, MINUS, MUL, DIV, POWER]
 
 class Parser(object):
     def __init__(self, lexer):
@@ -68,25 +67,27 @@ class Parser(object):
         node = None
         left_term = self.term()
 
-        while self.current_token.token_type in accepted_operators:
-            # Peek and make sure that the next token is not an OPERATOR
+        while self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
+            # Peek and make sure that the next token is not an OPERATOR 
+            # (with the exception of MINUS due to MINUS FACTOR)
             # If it is an operator, raise and error
-            if self.peek().token_type in accepted_operators:
+            if self.peek().token_type in [PLUS, MUL, DIV, POWER]:
                 self.error()
 
             node = self.current_token
             
             if self.current_token.token_type == PLUS:
                 self.eat(PLUS)
-            if self.current_token.token_type == MINUS:
+            elif self.current_token.token_type == MINUS:
                 self.eat(MINUS)
-            if self.current_token.token_type == MUL:
+            elif self.current_token.token_type == MUL:
                 self.eat(MUL)
-            if self.current_token.token_type == DIV:
+            elif self.current_token.token_type == DIV:
                 self.eat(DIV)
-            if self.current_token.token_type == POWER:
+            elif self.current_token.token_type == POWER:
                 self.eat(POWER)
 
+            print(self.current_token)
             node = BinaryOp_Node(left_term, node, self.term())
 
         if node == None:
