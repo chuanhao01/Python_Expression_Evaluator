@@ -130,7 +130,6 @@ class CLI:
         print("\n>>> Evaluating and Sorting completed!")
 
     
-    #TODO: CHANGE THIS TO A NORMAL METHOD
     @staticmethod
     def run():
         CLI.print_header()
