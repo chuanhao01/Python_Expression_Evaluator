@@ -23,16 +23,16 @@ class Lexer(object):
 
     def error(self, error_type, character):
         if error_type == "unrecognised_token_type":
-            return f"{character} is not a valid character."
+            return f"Lexical Error: {character} is not a valid character\n"
 
         elif error_type == "unrecognised_operator":
-            return f"Support for the {character} operator has not yet been implemented"
+            return f"Lexical Error: Support for the {character} operator has not yet been implemented\n"
 
         elif error_type == "invalid_float":
-            return f"Invalid float / integer value: {character}"
+            return f"Lexical Error: Invalid float / integer value: {character}\n"
 
         else:
-            return "Unexpected error occurred"
+            return "An unexpected error has occurred in the Lexer.. Please try again\n"
 
 
     def check_token_type(self, char):

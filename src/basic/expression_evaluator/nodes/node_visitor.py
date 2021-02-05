@@ -9,7 +9,7 @@ class NodeVisitor(object):
 
     def visit_error(self, node):
         node_name = type(node).__name__
-        raise NotImplementedError(f"visit_{node_name} has not been implemented yet!!")
+        return f"Interpreter Error: visit_{node_name} has not been implemented yet.."
 
     def visit(self, node):
         node_name = type(node).__name__

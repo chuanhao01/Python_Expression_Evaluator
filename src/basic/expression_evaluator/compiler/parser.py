@@ -19,9 +19,28 @@ class Parser(object):
 
     #* Utilities
 
-    def error(self):
-        #TODO: Change this to an actual error function
-        raise Exception("Error during Parsing")
+    def error(self, error_type):
+        if error_type == "non-matching_token_types" or error_type == "internal_error":
+            return "An internal error has occurred in the parser.. Please try again\n"
+
+        elif error_type == "multiple_consecutive_operators":
+            return "Syntax Error: There are multiple consecutive operators in your expression..\n"
+
+        elif error_type == "multiple_consecutive_numbers":
+            return "Syntax Error: There are multiple consecutive numbers in your expression with no operators between..\n"
+
+        elif error_type == "term_error":
+            return "Syntax Error: Multiple expressions detected.. Please try again\n"
+
+        elif error_type == "factor_error":
+            return "An unexpected error has occurred in the Parser.. Please check your NUMBER inputs\n"
+
+        elif error_type == "incorrect_paranthesis":
+            return "Syntax Error: The expression provided is not a legal fully paranthesised expression\n"
+
+        else:
+            return "An unexpected error has occurred in the Parser.. Please try again\n"
+
 
     def advance(self):
         #* Advance to the next character of the input expression and,
@@ -48,9 +67,11 @@ class Parser(object):
         #* Else, raise an Exception error
         if self.current_token.token_type == token_type:
             self.advance()
+            return None
 
         else:
-            self.error()
+            error_type = "non-matching_token_types"
+            return self.error(error_type)
 
 
     #* Grammer
@@ -62,32 +83,45 @@ class Parser(object):
         # If INIT Token is found, raise an error
         # This should only occur if this is called separately from self.parse()
         if self.current_token.token_type == INIT:
-            self.error()
+            error_type = "internal_error"
+            return self.error(error_type)
 
         node = None
         left_term = self.term()
+        #! Error message returned
+        if isinstance(left_term, str):
+            return left_term
 
         while self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
             # Peek and make sure that the next token is not an OPERATOR 
             # (with the exception of MINUS due to MINUS FACTOR)
             # If it is an operator, raise and error
             if self.peek().token_type in [PLUS, MUL, DIV, POWER]:
-                self.error()
+                error_type = "multiple_consecutive_operators"
+                return self.error(error_type)
 
             node = self.current_token
             
             if self.current_token.token_type == PLUS:
-                self.eat(PLUS)
+                error_msg = self.eat(PLUS)
             elif self.current_token.token_type == MINUS:
-                self.eat(MINUS)
+                error_msg = self.eat(MINUS)
             elif self.current_token.token_type == MUL:
-                self.eat(MUL)
+                error_msg = self.eat(MUL)
             elif self.current_token.token_type == DIV:
-                self.eat(DIV)
+                error_msg = self.eat(DIV)
             elif self.current_token.token_type == POWER:
-                self.eat(POWER)
+                error_msg = self.eat(POWER)
 
-            node = BinaryOp_Node(left_term, node, self.term())
+            if error_msg != None:
+                return error_msg
+
+            right_term = self.term()
+            #! Error message returned
+            if isinstance(right_term, str):
+                return right_term
+
+            node = BinaryOp_Node(left_term, node, right_term)
 
         if node == None:
             return left_term
@@ -99,7 +133,9 @@ class Parser(object):
 
         # EXPR
         if self.current_token.token_type == LPARAN:
-            self.eat(LPARAN)
+            error_msg = self.eat(LPARAN)
+            if error_msg != None:
+                return error_msg
 
             node = self.expr()
             return node
@@ -110,7 +146,8 @@ class Parser(object):
             return node
 
         else:
-            self.error()
+            error_type = "term_error"
+            return self.error(error_type)
 
     def factor(self):
         ''' MINUS FACTOR | NUMBER '''
@@ -121,22 +158,31 @@ class Parser(object):
             #* Peek and make sure that the next token is not a NUMBER
             #* If it is, raise an error
             if self.peek().token_type == NUMBER:
-                self.error()
+                error_type = "multiple_consecutive_numbers"
+                return self.error(error_type)
 
-            self.eat(NUMBER)
+            error_msg = self.eat(NUMBER)
+            if error_msg != None:
+                return error_msg
             return Number_Node(node)
         
         # MINUS FACTOR
         if node.token_type == MINUS:
-            self.eat(MINUS)
+            error_msg = self.eat(MINUS)
+            if error_msg != None:
+                return error_msg
 
             self.current_token.token_value *= -1
             node = self.current_token
 
             self.eat(NUMBER)
+            if error_msg != None:
+                return error_msg
+
             return Number_Node(node)
 
-        self.error()
+        error_type = "factor_error"
+        return self.error(error_type)
 
 
     #* Main
@@ -157,9 +203,12 @@ class Parser(object):
                 right_paran_count += 1
 
         if left_paran_count != right_paran_count or (left_paran_count + right_paran_count) % 2 != 0 or left_paran_count < 1 or right_paran_count < 1:
-            self.error()
+            error_type = "incorrect_paranthesis"
+            return self.error(error_type)
 
         # If this point is reached, the paranthesis check has passed
         # As such, "eat" the INIT token and start parsing
-        self.eat(INIT)
+        error_msg = self.eat(INIT)
+        if error_msg != None:
+            return error_msg
         return self.expr()

@@ -15,15 +15,60 @@ class Interpreter(NodeVisitor):
         token_type = node.operator.token_type
 
         if token_type == PLUS:
-            return self.visit(node.left_term) + self.visit(node.right_term)
+            left_term = self.visit(node.left_term)
+            if isinstance(left_term, str):
+                return left_term
+
+            right_term = self.visit(node.right_term)
+            if isinstance(right_term, str):
+                return right_term
+
+            return left_term + right_term
+
         if token_type == MINUS:
-            return self.visit(node.left_term) - self.visit(node.right_term)
+            left_term = self.visit(node.left_term)
+            if isinstance(left_term, str):
+                return left_term
+
+            right_term = self.visit(node.right_term)
+            if isinstance(right_term, str):
+                return right_term
+
+            return left_term - right_term
+
         if token_type == MUL:
-            return self.visit(node.left_term) * self.visit(node.right_term)
+            left_term = self.visit(node.left_term)
+            if isinstance(left_term, str):
+                return left_term
+
+            right_term = self.visit(node.right_term)
+            if isinstance(right_term, str):
+                return right_term
+
+            return left_term * right_term
+
         if token_type == DIV:
-            return self.visit(node.left_term) / self.visit(node.right_term)
+            left_term = self.visit(node.left_term)
+            if isinstance(left_term, str):
+                return left_term
+
+            right_term = self.visit(node.right_term)
+            if isinstance(right_term, str):
+                return right_term
+
+            return left_term / right_term
+
         if token_type == POWER:
-            return self.visit(node.left_term) ** self.visit(node.right_term)
+            left_term = self.visit(node.left_term)
+            if isinstance(left_term, str):
+                return left_term
+
+            right_term = self.visit(node.right_term)
+            if isinstance(right_term, str):
+                return right_term
+
+            return left_term ** right_term
+
 
     def interpret(self):
         ast = self.parser.parse()
