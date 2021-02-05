@@ -61,6 +61,7 @@ class Parser(object):
 
         # Performing a check for INIT token
         # If INIT Token is found, raise an error
+        # This should only occur if this is called separately from self.parse()
         if self.current_token.token_type == INIT:
             self.error()
 
@@ -104,7 +105,7 @@ class Parser(object):
             return node
 
         # FACTOR
-        elif self.current_token.token_type == NUMBER:
+        elif self.current_token.token_type == NUMBER or (self.peek().token_type == NUMBER and self.current_token.token_type == MINUS):
             node = self.factor()
             return node
 
@@ -131,9 +132,9 @@ class Parser(object):
 
             self.current_token.token_value *= -1
             node = self.current_token
+
             self.eat(NUMBER)
-            
-            return Number_Node(self.current_token)
+            return Number_Node(node)
 
         self.error()
 
