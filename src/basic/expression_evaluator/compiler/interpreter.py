@@ -28,7 +28,12 @@ class Interpreter(NodeVisitor):
     def interpret(self):
         ast = self.parser.parse()
 
-        if ast == None:
-            return None
+        #! If there was an error_msg returned from the parser
+        if isinstance(ast, str):
+            error_msg = ast
+            return (None, error_msg)
+
+        elif ast == None:
+            return (None, None)
 
         return (ast, self.visit(ast))

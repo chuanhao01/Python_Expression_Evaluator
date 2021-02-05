@@ -146,14 +146,18 @@ class CLI:
 
             if choice == '1':
                 expression = CLI.print_inputExpression()
-                #TODO: Add validation for expression that will prompt for another input if error raised in compiler
-
                 traversalChoice = -1
 
                 while traversalChoice not in ['1', '2', '3']:
                     traversalChoice = CLI.print_traversalSelection()
 
                 ast, result = Evaluator.evaluate(expression)
+
+                #! If there was an error returned from the compiler
+                if isinstance(result, str):
+                    print(result)
+                    continue
+
                 CLI.print_parseTree(traversalChoice, ast)
                 CLI.print_evaluateResult(result)
 

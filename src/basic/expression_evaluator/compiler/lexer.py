@@ -21,9 +21,19 @@ class Lexer(object):
         self.current_token_type = INIT
         self.current_token_value = None
 
-    def error(self):
-        #TODO: Create the error function
-        raise Exception("Invalid characters in expression provided!!")
+    def error(self, error_type, character):
+        if error_type == "unrecognised_token_type":
+            return f"{character} is not a valid character."
+
+        elif error_type == "unrecognised_operator":
+            return f"Support for the {character} operator has not yet been implemented"
+
+        elif error_type == "invalid_float":
+            return f"Invalid float / integer value: {character}"
+
+        else:
+            return "Unexpected error occurred"
+
 
     def check_token_type(self, char):
         #* Checks and returns the token_type of the character passed in
@@ -50,7 +60,8 @@ class Lexer(object):
             return DOT
 
         #! The character passed in does not match any token type, raise an error
-        self.error()
+        error_type = "unrecognised_token_type"
+        return self.error(error_type, char)
 
     def peek(self):
         #* "Peek" into the next character of the input expression and,
@@ -95,8 +106,12 @@ class Lexer(object):
         elif self.current_token_value == "/":
             self.current_token_type = DIV
 
+        #! Theorectically, this should never occur as a check is made previously to 
+        #! determine if self.current_token is an OPERATOR token type.
+        #! However, we are still checking just in case
         else:
-            self.error()
+            error_type = "unrecognised_operator"
+            self.error(error_type, self.current_token_value)
     
     def get_number(self):
         #* Get the entirety of the NUMBER value, whether it is a Float or an Integer
@@ -116,7 +131,8 @@ class Lexer(object):
             #! If the next character after "." is not a number,
             #! Raise an error
             if self.check_token_type(self.peek()) != NUMBER:
-                self.error()
+                error_type = "invalid_float"
+                return self.error(error_type, self.current_token_value)
 
             while self.check_token_type(self.peek()) == NUMBER:
                 self.advance()
@@ -124,6 +140,8 @@ class Lexer(object):
 
         self.current_token_value = float(number_value)
         self.advance()
+
+        return None
     
     def get_next_token(self):
         #* Gets and returns the next token of the input string
@@ -158,12 +176,17 @@ class Lexer(object):
         
         # NUMBER
         elif self.current_token_type == DOT or self.current_token_type == NUMBER:
-            self.get_number()
-            return Token(NUMBER, self.current_token_value)
+            error_msg = self.get_number()
+
+            if error_msg == None:
+                return Token(NUMBER, self.current_token_value)
+            else:
+                return error_msg
 
         #! If this point is reached,
         #! The next char does not have a recognised token type
-        self.error()
+        error_type = "unrecognised_token_type"
+        return self.error(error_type, self.current_token_value)
 
     def get_all_tokens(self):
         #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens
@@ -174,6 +197,11 @@ class Lexer(object):
 
         while True:
             current_token = self.get_next_token()
+
+            #! This is an error message
+            if isinstance(current_token, str):
+                return current_token
+
             tokens.append(current_token)
 
             # The last token is always an EOF

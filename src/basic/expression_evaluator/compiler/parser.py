@@ -87,7 +87,6 @@ class Parser(object):
             elif self.current_token.token_type == POWER:
                 self.eat(POWER)
 
-            print(self.current_token)
             node = BinaryOp_Node(left_term, node, self.term())
 
         if node == None:
@@ -144,6 +143,10 @@ class Parser(object):
 
     def parse(self):
         #* Parse the stream of tokens, checking the grammer
+
+        #! Checking if there was an error returned from the lexer
+        if isinstance(self.all_tokens, str):
+            return self.all_tokens
         
         # Perform a check of the Paranthesis count before starting any parsing
         left_paran_count = right_paran_count = 0
