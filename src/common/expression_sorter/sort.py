@@ -88,12 +88,15 @@ class Sort:
             all_expressions = self.get_all_expr_list()
 
         sortedList = self.mergeSort(all_expressions)
+        compiledList = self.compile_sortedList_by_value(sortedList)
 
-        if self.get_sort_type() == "value":
-            return self.compile_sortedList_by_value(sortedList)
+        for sublist in compiledList:
+            if len(sublist[1]) > 1:
+                self.set_sort_type("length")
+                sublist = self.mergeSort(sublist[1])
 
-        else:
-            return sortedList
+        return compiledList
+
 
     # Merge Sort WHEEEEEEEEE
     def mergeSort(self, expr_list):
