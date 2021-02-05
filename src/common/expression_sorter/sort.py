@@ -57,29 +57,43 @@ class Sort:
 
         return all_expressions
 
-    #* Check if there are multiple expressions with the same value
-    def check_same_value(self, expressionList):
-        prev_val = None
-        temp_arr = []
+    #* Compile the sorted list into sublists based on value
+    def compile_sortedList_by_value(self, sorted_exprList):
+        value_list = [expression[1] for expression in sorted_exprList]
+        expression_list = [expression for expression in sorted_exprList]
+        
+        unique_value_list = []
+        for value in value_list:
+            if value not in unique_value_list:
+                unique_value_list.append(value)
 
-        for expression in expressionList:
-            value = expression[1]
+        compiledList = []
 
-            if prev_val == value:
-                temp_arr.append(expression)
+        for i in range(0, len(unique_value_list)):
+            value = unique_value_list[i]
 
+            compiledList.append([value])
+            compiledList[i].append([expression for expression in expression_list if expression[1] == value])
 
+        return compiledList
 
 
     #* Sorting
 
     # 'Middleman' for mergeSort() method
     def sort(self):
-        all_expressions = self.preprocess_expr()
+        if self.get_sort_type() == "value":
+            all_expressions = self.preprocess_expr()
+        else:
+            all_expressions = self.get_all_expr_list()
 
         sortedList = self.mergeSort(all_expressions)
 
-        return expression_list
+        if self.get_sort_type() == "value":
+            return self.compile_sortedList_by_value(sortedList)
+
+        else:
+            return sortedList
 
     # Merge Sort WHEEEEEEEEE
     def mergeSort(self, expr_list):

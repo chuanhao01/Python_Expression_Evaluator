@@ -115,12 +115,18 @@ class CLI:
         return sort_order
 
     @staticmethod
-    def print_sortResult():
+    def print_sortResult(sortedList):
         print(">>> Evaluating and Sorting started:")
 
-        print("RESULT HERE")
- 
-        print(">>> Evaluating and Sorting completed!")
+        for sublist in sortedList:
+            value = sublist[0]
+            print(f"\n*** Expressions with value = {value}")
+
+            for expression in sublist[1]:
+                #print(type(sublist[i]))
+                print(f"{expression[0]} ==> {value}")
+
+        print("\n>>> Evaluating and Sorting completed!")
 
     
     #TODO: CHANGE THIS TO A NORMAL METHOD
@@ -168,9 +174,13 @@ class CLI:
                 sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
                 sortedList = sort.sort()
 
-                print(sortedList)
+                for sublist in sortedList:
+                    if len(sublist[1]) > 1:
+                        sort.set_sort_type("length")
+                        sort.set_all_expr_list(sublist[1])
+                        sublist = sort.sort()
 
-                CLI.print_sortResult()
+                CLI.print_sortResult(sortedList)
 
                 CLI.print_continue()
 
