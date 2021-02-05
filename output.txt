@@ -8,6 +8,12 @@
 *** Expressions with value = 0.2
 (0.2) ==> 0.2
 
+*** Expressions with value = 2
+() ==> 2
+
+*** Expressions with value = 4
+()-1 ==> 4
+
 *** Expressions with value = 5.0
 (10/2) ==> 5.0
 
