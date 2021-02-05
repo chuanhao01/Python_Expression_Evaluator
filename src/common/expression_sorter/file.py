@@ -18,10 +18,17 @@ class File:
         return file_input
 
     @staticmethod
-    def write(filename, file_output):
+    def write(filename, sortedList):
         f = open(filename, 'w')
 
-        for line in file_output:
-            f.write(line)
+        for sublist in sortedList:
+            value = sublist[0]
+            f.write(f"*** Expressions with value = {value}\n")
+
+            for expression in sublist[1]:
+                #print(type(sublist[i]))
+                f.write(f"{expression[0]} ==> {value}\n")
+
+            f.write("\n")
 
         f.close()

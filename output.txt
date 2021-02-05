@@ -1,0 +1,18 @@
+*** Expressions with value = -110.0
+(10-(30*4)) ==> -110.0
+
+*** Expressions with value = -1.0
+(-1) ==> -1.0
+(1-2) ==> -1.0
+
+*** Expressions with value = 6.0
+(10-4) ==> 6.0
+
+*** Expressions with value = 13.0
+(10+3) ==> 13.0
+(10+3) ==> 13.0
+(9+(1+(2+1))) ==> 13.0
+
+*** Expressions with value = 1002.0
+(1002) ==> 1002.0
+

@@ -181,6 +181,7 @@ class CLI:
                         sublist = sort.sort()
 
                 CLI.print_sortResult(sortedList)
+                File.write(output_file, sortedList)
 
                 CLI.print_continue()
 
