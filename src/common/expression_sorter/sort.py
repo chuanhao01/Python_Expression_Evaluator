@@ -2,13 +2,11 @@
 This is the Python File containing the Sort class that
 deals with sorting the various expressions from the input file
 
-#TODO: Sort by Value, Length, Digit Order   ( Type )
-#TODO: Sort by Ascending / Descending       ( Order )
-
-#TODO: Find some way to link the sorted list back to the full expression
+#* Features: Sort by Value, Length, Digit Order   ( Type )
+#* Features: Sort by Ascending / Descending       ( Order )
 '''
 
-from file import File
+from .file import File
 
 class Sort:
     def __init__(self, all_expr_list = None, sort_type = None, sort_order = None):
@@ -46,7 +44,7 @@ class Sort:
 
         self.__sort_order = sort_order
 
-    #* 'Preprocessing' expression - get evaluated value, get length of expression, remove whitespaces
+    #* 'Preprocessing' expression - get length of expression, remove whitespaces
     def preprocess_expr(self):
         all_expressions = self.get_all_expr_list()
 
@@ -54,19 +52,48 @@ class Sort:
             # Removing whitespaces
             expression[0] = expression[0].replace(" ", "")
 
-            # Appending evaluated value and length of expression
-            expression.append(eval(expression[0]))
+            # Appending length of expression
             expression.append(len(str(expression[0])))
 
         return all_expressions
-    
+
+    #* Compile the sorted list into sublists based on value
+    def compile_sortedList_by_value(self, sorted_exprList):
+        value_list = [expression[1] for expression in sorted_exprList]
+        expression_list = [expression for expression in sorted_exprList]
+        
+        unique_value_list = []
+        for value in value_list:
+            if value not in unique_value_list:
+                unique_value_list.append(value)
+
+        compiledList = []
+
+        for i in range(0, len(unique_value_list)):
+            value = unique_value_list[i]
+
+            compiledList.append([value])
+            compiledList[i].append([expression for expression in expression_list if expression[1] == value])
+
+        return compiledList
+
+
     #* Sorting
 
     # 'Middleman' for mergeSort() method
     def sort(self):
-        all_expressions = self.preprocess_expr()
+        if self.get_sort_type() == "value":
+            all_expressions = self.preprocess_expr()
+        else:
+            all_expressions = self.get_all_expr_list()
 
-        return self.mergeSort(all_expressions)
+        sortedList = self.mergeSort(all_expressions)
+
+        if self.get_sort_type() == "value":
+            return self.compile_sortedList_by_value(sortedList)
+
+        else:
+            return sortedList
 
     # Merge Sort WHEEEEEEEEE
     def mergeSort(self, expr_list):
@@ -136,36 +163,3 @@ class Sort:
                 merge_index += 1
 
         return expr_list
-
-
-
-if __name__ == "__main__":
-    all_expressions = File.read(filename = './testCases.txt')
-
-    sort = Sort(all_expressions)
-    '''
-    print("Sort by Value in Ascending Order")
-    sort.set_sort_order("ascending")
-    sort.set_sort_type("value")
-    print(sort.sort())
-
-    print()
-
-    print("Sort by Value in Descending Order")
-    sort.set_sort_order("descending")
-    sort.set_sort_type("value")
-    print(sort.sort())   
-    
-    print()
-    '''
-    print("Sort by Length in Ascending Order")
-    sort.set_sort_order("ascending")
-    sort.set_sort_type("length")
-    print(sort.sort())   
-    
-    print()
-
-    print("Sort by Length in Descending Order")
-    sort.set_sort_order("descending")
-    sort.set_sort_type("length")
-    print(sort.sort())   
