@@ -190,7 +190,8 @@ class CLI:
 
                 if valid_expressions:
                     # Sort the expressions according to value
-                    sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
+                    # sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
+                    sort = Sort(all_expr_list = allExpressions)
                     sortedList = sort.sort()
 
                     CLI.print_sortResult(sortedList)

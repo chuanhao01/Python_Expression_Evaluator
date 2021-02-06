@@ -9,7 +9,7 @@ deals with sorting the various expressions from the input file
 from .file import File
 
 class Sort:
-    def __init__(self, all_expr_list = None, sort_type = None, sort_order = None):
+    def __init__(self, all_expr_list = None, sort_type = "value", sort_order = "ascending"):
         self.__all_expr_list = all_expr_list
         self.__sort_type = sort_type
         self.__sort_order = sort_order
@@ -82,10 +82,7 @@ class Sort:
 
     # 'Middleman' for mergeSort() method
     def sort(self):
-        if self.get_sort_type() == "value":
-            all_expressions = self.preprocess_expr()
-        else:
-            all_expressions = self.get_all_expr_list()
+        all_expressions = self.preprocess_expr()
 
         sortedList = self.mergeSort(all_expressions)
         compiledList = self.compile_sortedList_by_value(sortedList)
