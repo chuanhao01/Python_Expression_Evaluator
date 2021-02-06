@@ -169,6 +169,8 @@ class CLI:
                 CLI.print_continue()
 
             elif choice == '2':
+                valid_expressions = True
+
                 input_file, output_file = CLI.print_getFiles()
                 sort_type = "value"
                 sort_order = CLI.print_sortSettings()
@@ -182,23 +184,19 @@ class CLI:
                     except Exception as error:
                         print(f"There was an invalid expression in {input_file}.. The specific error is as follows:")
                         print(error)
-                        exit()
+
+                        valid_expressions = False
                         break
 
-                # Sort the expressions according to value
-                sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
-                sortedList = sort.sort()
+                if valid_expressions:
+                    # Sort the expressions according to value
+                    sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
+                    sortedList = sort.sort()
 
-                for sublist in sortedList:
-                    if len(sublist[1]) > 1:
-                        sort.set_sort_type("length")
-                        sort.set_all_expr_list(sublist[1])
-                        sublist = sort.sort()
+                    CLI.print_sortResult(sortedList)
+                    File.write(output_file, sortedList)
 
-                CLI.print_sortResult(sortedList)
-                File.write(output_file, sortedList)
-
-                CLI.print_continue()
+                    CLI.print_continue()
 
             elif choice == '3':
                 CLI.print_exit()
