@@ -76,3 +76,17 @@ The sublist of expressions evaluating to each value will already be sorted accor
 * The values of sort_type and sort_order will default to "value" and "ascending" if no argument is provided.
   
 * In the event that there are multiple expressions with the same value and same length, the expressions will be sorted in ordered sort.
+
+
+**Printing Result**
+
+Printing result using the sortedList returned from Sort.sort():
+#### **`src/basic/cli.py`**
+``` python
+for sublist in sortedList:
+    value = sublist[0]
+    print(f"\n*** Expressions with value = {value}")
+
+    for expression in sublist[1]:
+        print(f"{expression[0]} ==> {value}")
+```
