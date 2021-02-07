@@ -124,7 +124,6 @@ class CLI:
             print(f"\n*** Expressions with value = {value}")
 
             for expression in sublist[1]:
-                #print(type(sublist[i]))
                 print(f"{expression[0]} ==> {value}")
 
         print("\n>>> Evaluating and Sorting completed!")
