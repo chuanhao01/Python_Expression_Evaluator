@@ -42,7 +42,7 @@ class CLI:
 
     @staticmethod
     def print_continue():
-        input("\nPress any key to continue....")
+        input("\nPress any key to continue....\n")
 
 
     #* Expression Evaluator
@@ -176,7 +176,7 @@ class CLI:
                         expression.append(Evaluator.evaluate(expression[0])[1])
                     except Exception as error:
                         print(f"There was an invalid expression in {input_file}.. The specific error is as follows:")
-                        print(error)
+                        print(error, "\n")
 
                         valid_expressions = False
                         break
