@@ -1,6 +1,8 @@
 '''
-This Python File contains the main 'Parser' class that will:
-parse the sequence of tokens from the lexer and check the grammer
+This Python File contains the main 'Parser' class
+
+#* Its main purpose is to parse the sequence of tokens from the lexer and check the grammer
+#! At this stage, it is assumed that all characters in the input expression is a valid token
 '''
 
 from ..tokens import Token
@@ -67,7 +69,6 @@ class Parser(object):
         #* Else, raise an Exception error
         if self.current_token.token_type == token_type:
             self.advance()
-            return None
 
         else:
             error_type = "non-matching_token_types"
@@ -88,9 +89,6 @@ class Parser(object):
 
         node = None
         left_term = self.term()
-        #! Error message returned
-        if isinstance(left_term, str):
-            return left_term
 
         if self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
             # Peek and make sure that the next token is not an OPERATOR 
@@ -177,7 +175,6 @@ class Parser(object):
 
     def parse(self):
         #* Parse the stream of tokens, checking the grammer
-        print("Parser")
 
         # Perform a check of the Paranthesis count before starting any parsing
         left_paran_count = right_paran_count = 0
@@ -187,9 +184,11 @@ class Parser(object):
             if token.token_type == RPARAN:
                 right_paran_count += 1
 
+        # Basics of fully-paranthesised expressions -> same count of left and right paranthesis && even number of paranthesis overall
         if left_paran_count != right_paran_count or (left_paran_count + right_paran_count) % 2 != 0 or left_paran_count < 1 or right_paran_count < 1:
             error_type = "incorrect_paranthesis"
             self.error(error_type)
+
 
         # If this point is reached, the paranthesis check has passed
         # As such, "eat" the INIT token and start parsing

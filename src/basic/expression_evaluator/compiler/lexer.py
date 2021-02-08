@@ -21,7 +21,7 @@ class Lexer(object):
         self.current_token_type = INIT
         self.current_token_value = None
 
-    def error(self, error_type, character):
+    def error(self, error_type, character = None):
         if error_type == "unrecognised_token_type":
             raise Exception(f"Lexical Error: Invalid character(s) detected\n")
 
@@ -61,7 +61,7 @@ class Lexer(object):
 
         #! The character passed in does not match any token type, raise an error
         error_type = "unrecognised_token_type"
-        self.error(error_type, char)
+        self.error(error_type)
 
     def peek(self):
         #* "Peek" into the next character of the input expression and,
@@ -132,7 +132,7 @@ class Lexer(object):
             #! Raise an error
             if self.check_token_type(self.peek()) != NUMBER:
                 error_type = "invalid_float"
-                self.error(error_type, self.current_token_value)
+                self.error(error_type)
 
             while self.check_token_type(self.peek()) == NUMBER:
                 self.advance()
@@ -140,7 +140,7 @@ class Lexer(object):
 
                 if self.check_token_type(self.peek()) == DOT:
                     error_type = "invalid_float"
-                    self.error(error_type, self.current_token_value)
+                    self.error(error_type)
 
         self.current_token_value = float(number_value)
         self.advance()
@@ -184,7 +184,7 @@ class Lexer(object):
         #! If this point is reached,
         #! The next char does not have a recognised token type
         error_type = "unrecognised_token_type"
-        self.error(error_type, self.current_token_value)
+        self.error(error_type)
 
     def get_all_tokens(self):
         #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens

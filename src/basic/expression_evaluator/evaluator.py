@@ -14,4 +14,13 @@ class Evaluator:
         interpreter = Interpreter(parser)
 
         # Obtaining the result
-        return interpreter.interpret()
+        ast, result = interpreter.interpret()
+
+        if ast == None:
+            raise Exception("Error obtaining parse tree.. Please try again")
+
+        elif result == None:
+            raise Exception("Error obtaining evaluated expression value.. Please try again")
+
+        else:
+            return ast, result

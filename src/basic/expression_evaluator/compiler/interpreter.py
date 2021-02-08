@@ -6,7 +6,7 @@ from .parser import Parser
 
 class Interpreter(NodeVisitor):
     def error(self):
-        raise Exception("Error intepreting expression")
+        raise Exception("Error interpreting expression.. Please try again")
 
     def visit_Number_Node(self, node):
         return node.token_value
@@ -44,6 +44,7 @@ class Interpreter(NodeVisitor):
 
             return left_term ** right_term
 
+        self.error()
 
     def interpret(self):
         ast = self.parser.parse()
