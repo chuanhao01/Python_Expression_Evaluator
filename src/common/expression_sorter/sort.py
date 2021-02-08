@@ -14,7 +14,7 @@ class Sort:
         self.__sort_type = sort_type
         self.__sort_order = sort_order
 
-    def error(self, error_type):
+    def error(self, error_type = None):
         if error_type == "invalid_sort_type":
             raise ValueError("Invalid Sorting Type.. Only 'Value' or 'Length' accepted")
         elif error_type == "invalid_sort_order":
