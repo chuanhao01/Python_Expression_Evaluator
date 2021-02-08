@@ -11,5 +11,4 @@ class BinaryOp_Node(AST):
         self.right_term = right_term
 
     def __str__(self):
-        #TODO: Create a better __str__() function
         return f"{self.left_term}, {self.operator}, {self.right_term}"
