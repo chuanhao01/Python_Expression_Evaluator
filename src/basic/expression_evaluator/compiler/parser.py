@@ -118,6 +118,10 @@ class Parser(object):
                 error_type = "incorrect_paranthesis"
                 self.error(error_type)
 
+        elif self.current_token.token_type != RPARAN:
+            error_type = "incorrect_paranthesis"
+            self.error(error_type)
+
         if node == None:
             return left_term
 

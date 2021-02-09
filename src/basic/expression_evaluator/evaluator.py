@@ -8,6 +8,9 @@ from .compiler import Lexer, Parser, Interpreter
 class Evaluator:
     @staticmethod
     def evaluate(expression):
+        if len(expression) <= 0:
+            raise ValueError("\nInput Expression Length must be greater than 0\n")
+
         # Initialising the different components of the basic compiler
         lexer = Lexer(expression)
         parser = Parser(lexer)
