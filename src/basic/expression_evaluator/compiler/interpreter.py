@@ -5,7 +5,7 @@ from .lexer import Lexer
 from .parser import Parser
 
 class Interpreter(NodeVisitor):
-    def error(self):
+    def __error(self):
         raise Exception("Error interpreting expression.. Please try again")
 
     def visit_Number_Node(self, node):
@@ -44,7 +44,7 @@ class Interpreter(NodeVisitor):
 
             return left_term ** right_term
 
-        self.error()
+        self.__error()
 
     def interpret(self):
         ast = self.parser.parse()

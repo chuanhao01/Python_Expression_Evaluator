@@ -21,7 +21,7 @@ class Lexer(object):
         self.current_token_type = INIT
         self.current_token_value = None
 
-    def error(self, error_type, character = None):
+    def __error(self, error_type, character = None):
         if error_type == "unrecognised_token_type":
             raise Exception(f"Lexical Error: Invalid character(s) detected\n")
 
@@ -35,7 +35,7 @@ class Lexer(object):
             raise SystemError("An unexpected error has occurred in the Lexer.. Please try again\n")
 
 
-    def check_token_type(self, char):
+    def __check_token_type(self, char):
         #* Checks and returns the token_type of the character passed in
 
         if char == None:
@@ -59,11 +59,11 @@ class Lexer(object):
         if char == ".":
             return DOT
 
-        #! The character passed in does not match any token type, raise an error
+        #! The character passed in does not match any token type, raise an __error
         error_type = "unrecognised_token_type"
-        self.error(error_type)
+        self.__error(error_type)
 
-    def peek(self):
+    def __peek(self):
         #* "Peek" into the next character of the input expression and,
         #* return this character if it is not the end of the input expression
 
@@ -73,7 +73,7 @@ class Lexer(object):
             return None
         return self.text[pos]
 
-    def advance(self):
+    def __advance(self):
         #* Advance to the next character of the input expression and,
         #* Update self.current_char if not reached the end of the input expression
 
@@ -84,14 +84,14 @@ class Lexer(object):
         else:
             self.current_char = self.text[self.pos]
 
-    def differentiate_between_operators(self):
+    def __differentiate_between_operators(self):
         #* Check and differentiate between the different types of accepted operators:
         #* PLUS, MINUS, MUL, DIV, POWER
         #* Then, update the current_token_type to represent the actual operator
 
         if self.current_token_value == "*":
-            if self.peek() == "*":
-                self.advance()
+            if self.__peek() == "*":
+                self.__advance()
                 self.current_token_value += self.current_char
                 self.current_token_type = POWER
             else:
@@ -111,41 +111,41 @@ class Lexer(object):
         #! However, we are still checking just in case
         else:
             error_type = "unrecognised_operator"
-            self.error(error_type, self.current_token_value)
+            self.__error(error_type, self.current_token_value)
     
-    def get_number(self):
+    def __get_number(self):
         #* Get the entirety of the NUMBER value, whether it is a Float or an Integer
 
         number_value = self.current_char
 
         # Normal Integer
-        while self.check_token_type(self.peek()) == NUMBER:
-            self.advance()
+        while self.__check_token_type(self.__peek()) == NUMBER:
+            self.__advance()
             number_value += self.current_char
 
         # Float Number
-        if self.check_token_type(self.peek()) == DOT:
+        if self.__check_token_type(self.__peek()) == DOT:
             number_value += "."
-            self.advance()
+            self.__advance()
 
             #! If the next character after "." is not a number,
-            #! Raise an error
-            if self.check_token_type(self.peek()) != NUMBER:
+            #! Raise an __error
+            if self.__check_token_type(self.__peek()) != NUMBER:
                 error_type = "invalid_float"
-                self.error(error_type)
+                self.__error(error_type)
 
-            while self.check_token_type(self.peek()) == NUMBER:
-                self.advance()
+            while self.__check_token_type(self.__peek()) == NUMBER:
+                self.__advance()
                 number_value += self.current_char
 
-                if self.check_token_type(self.peek()) == DOT:
+                if self.__check_token_type(self.__peek()) == DOT:
                     error_type = "invalid_float"
-                    self.error(error_type)
+                    self.__error(error_type)
 
         self.current_token_value = float(number_value)
-        self.advance()
+        self.__advance()
 
-    def get_next_token(self):
+    def __get_next_token(self):
         #* Gets and returns the next token of the input string
         #* If the next token is a WHITESPACE, continue advancing to the next non-WHITESPACE token
         
@@ -155,36 +155,36 @@ class Lexer(object):
 
         self.current_token_value = ""
         self.current_token_value += self.current_char
-        self.current_token_type = self.check_token_type(self.current_char)
+        self.current_token_type = self.__check_token_type(self.current_char)
 
         # WHITESPACE
         if self.current_token_type == WHITESPACE:
-            while self.check_token_type(self.peek()) == WHITESPACE:
-                self.advance()
+            while self.__check_token_type(self.__peek()) == WHITESPACE:
+                self.__advance()
 
-            self.advance()
-            return self.get_next_token()
+            self.__advance()
+            return self.__get_next_token()
         
         # OPERATORS
         if self.current_token_type == OPERATOR:
-            self.differentiate_between_operators()
-            self.advance()
+            self.__differentiate_between_operators()
+            self.__advance()
             return Token(self.current_token_type, self.current_token_value)
 
         # PARANTHESIS
         elif self.current_token_type == LPARAN or self.current_token_type == RPARAN:
-            self.advance()
+            self.__advance()
             return Token(self.current_token_type, self.current_token_value)
         
         # NUMBER
         elif self.current_token_type == DOT or self.current_token_type == NUMBER:
-            self.get_number()
+            self.__get_number()
             return Token(NUMBER, self.current_token_value)
 
         #! If this point is reached,
         #! The next char does not have a recognised token type
         error_type = "unrecognised_token_type"
-        self.error(error_type)
+        self.__error(error_type)
 
     def get_all_tokens(self):
         #* Continuously calls get_next_token() until the entire input expression has been transformed into tokens
@@ -194,7 +194,7 @@ class Lexer(object):
         tokens = [init_token]
 
         while True:
-            current_token = self.get_next_token()
+            current_token = self.__get_next_token()
             tokens.append(current_token)
 
             # The last token is always an EOF
