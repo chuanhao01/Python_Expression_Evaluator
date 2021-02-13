@@ -175,6 +175,8 @@ class Parser(object):
         '''
         Private method for the parser to parse the given tokens into the ast
         '''
+        # TODO: Chuan Hao
+        # What if there is nothing
         ast = self.__expression()
         if not self.__match_token([EOF]):
             # TODO: Chuan Hao
