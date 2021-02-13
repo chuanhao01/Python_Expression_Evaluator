@@ -140,7 +140,7 @@ class Lexer(object):
         # Only accepts reserved keywords
         if identifier_value not in RESERVED_KEYWORDS:
             self.__error()
-        return Token(identifier_value, identifier_value, pos)
+        return Token(IDENTIFIER, identifier_value, pos)
     
     def __string(self):
         '''
