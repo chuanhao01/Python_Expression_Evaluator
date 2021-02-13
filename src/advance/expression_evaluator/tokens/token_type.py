@@ -3,9 +3,13 @@
 This contains all the static token types used in the evaluator
 '''
 # Special Tokens
+# +, -, *, /, %
 PLUS, MINUS, MUL, DIV, MODULUS = ['PLUS', 'MINUS', 'MUL', 'DIV', 'MODULUS']
+# **, //
 INT_DIV, POWER = ['INT_DIV', 'POWER']
+# (, )
 LPARAM, RPARAM = ['LPARAM', 'RPARAM']
+# ,
 COMMA = 'COMMA'
 EOF = 'EOF'
 
