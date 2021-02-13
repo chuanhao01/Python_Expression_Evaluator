@@ -19,11 +19,14 @@ IDENTIFIER = 'IDENTIFIER'
 STRING = 'STRING'
 
 # Reserved Keywords
+E, PI = ['E', 'PI']
+SIN, COS, TAN, FLOOR, CEIL, LN, LG, FACTORIAL, SQRT, BIN, HEX = ['sin', 'cos', 'tan', 'floor', 'ceil', 'ln', 'lg', 'factorial', 'sqrt', 'bin', 'hex']
+LOG, POW, MOD, PERM, COMB = ['log', 'pow', 'mod', 'perm', 'comb']
 RESERVED_KEYWORDS = set([
     # Arity 0
-    'E', 'PI',
+    E, PI,
     # Arity 1
-    'sin', 'cos', 'tan', 'floor', 'ceil', 'ln', 'lg', 'factorial', 'sqrt', 'bin', 'hex',
+    SIN, COS, TAN, FLOOR, CEIL, LN, LG, FACTORIAL, SQRT, BIN, HEX,
     # Arity 2
-    'log', 'pow', 'mod', 'perm', 'combo'
+    LOG, POW, MOD, PERM, COMB
 ])
