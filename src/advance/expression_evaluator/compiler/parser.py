@@ -134,20 +134,22 @@ class Parser(object):
             token = self.__cur_token
             self.__consume([IDENTIFIER])
             self.__consume([LPARAM])
+            # Else we have arguments to parse
             arguments = self.__arguments()
             self.__consume([RPARAM])
             return Function_Node(token, arguments)
+
         else:
             return self.__primary()
     
-    def __arguments(self):
-        node = self.__expression()
-        if node is None:
-            return []
-        nodes = [node]
-        while self.__match_token([COMMA]):
-            self.__consume([COMMA])
+    def __arguments(self) -> list:
+        nodes = []
+        # To tell if there are more expression, check for ending of function
+        if not self.__match_token([RPARAM]):
             nodes.append(self.__expression())
+            while self.__match_token([COMMA]):
+                self.__consume([COMMA])
+                nodes.append(self.__expression())
         return nodes
 
     def __primary(self):
@@ -165,7 +167,8 @@ class Parser(object):
             self.__consume([RPARAM])
             return expression
         else:
-            return None
+            # If when parsing, primary grammar fails, there is an error
+            self.__error()
     
     # Main Parser logic
     def __parse(self):
@@ -173,7 +176,6 @@ class Parser(object):
         Private method for the parser to parse the given tokens into the ast
         '''
         ast = self.__expression()
-        print(self.__cur_token)
         if not self.__match_token([EOF]):
             # TODO: Chuan Hao
             # Should have parsed all tokens and left EOF
