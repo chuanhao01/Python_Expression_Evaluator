@@ -31,11 +31,14 @@ term: factor (('*' | '/' | '//') factor)*
 factor: unary (('**') unary)*
 unary: ('+' | '-') unary
 	| call
-call: primary ('(' arguments ')')?
+call: IDENTIFIER ('(' arguments? ')')
+	| primary
+arguments: expression (',' expression)*
 primary: NUMBER
-	| IDENTIFIER
+	| STRING
 	| '(' expression ')'
-arguments: expression ((',') expression)*
+
+Need to also check EOF at the end
 
 --- Reserved Keywords ---
 Arity 0: E, PI

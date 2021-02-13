@@ -21,7 +21,7 @@ STRING = 'STRING'
 # Reserved Keywords
 RESERVED_KEYWORDS = set([
     # Arity 0
-    'E', 'PI'
+    'E', 'PI',
     # Arity 1
     'sin', 'cos', 'tan', 'floor', 'ceil', 'ln', 'lg', 'factorial', 'sqrt', 'bin', 'hex',
     # Arity 2
