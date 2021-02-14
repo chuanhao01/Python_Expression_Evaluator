@@ -3,7 +3,7 @@
 This Python File will deal with the File I/O required for the
 Expression Sorting Section of the application.
 '''
-
+from pathlib import Path
 class File:
     @staticmethod
     def read(filename):
@@ -19,8 +19,7 @@ class File:
 
     @staticmethod
     def write(filename, sortedList):
-        f = open(filename, 'w')
-
+        f = open(filename, 'w+')
         for sublist in sortedList:
             value = sublist[0]
             f.write(f"*** Expressions with value = {value}\n")
