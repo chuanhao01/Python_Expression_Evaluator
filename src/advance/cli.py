@@ -1,5 +1,6 @@
 '''Advance Application CLI file
 
+The Advance Applicaton CLI class, meant to be imported by the main program to run the advance application
 '''
 import curses
 import time
