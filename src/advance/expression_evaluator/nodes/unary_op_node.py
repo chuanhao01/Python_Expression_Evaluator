@@ -7,7 +7,7 @@ Has a child, which represents the node to do the operation on
 from ..tokens import Token
 from .ast import AST
 
-class Unary_Node(AST):
+class UnaryOp_Node(AST):
     def __init__(self, token: Token, child: AST):
         self.token = token
         self.child = child
