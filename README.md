@@ -31,4 +31,4 @@ The entire application is split into the Basic and Advanced Application whereby 
 ## 2. Links
 
 * [Github Repo](https://github.com/chuanhao01/Python_Expression_Evaluator)
-* [Report]() 
+* [Report](https://github.com/chuanhao01/Python_Expression_Evaluator/DSAA_CA2_Final_Report.pdf) 
