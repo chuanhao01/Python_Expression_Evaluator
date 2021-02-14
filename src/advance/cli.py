@@ -5,6 +5,9 @@ import curses
 import time
 import curses.panel as panel
 
+# Importing evaluator
+from .expression_evaluator import Evaluator
+
 class CLI(object):
     def __init__(self):
         # Curses objs
@@ -385,6 +388,7 @@ class CLI(object):
                 # Insert mode, user writes their expression
                 expression_prompt = "Your Expression: "
                 self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_prompt)
+                self.__refresh()
 
                 # Setting for user input to show up
                 curses.echo()
@@ -392,9 +396,62 @@ class CLI(object):
                 # Get the expression typed in
                 expression_raw_input = self.__application_terminal_window.getstr() # Read as bytes
                 expression_input = str(expression_raw_input, "utf-8")
+                self.__application_terminal_window.scroll()
+
+                # Evaluator logic
+                evaluator = Evaluator()
+                evaluation = evaluator.evaluate(expression_input)
 
                 # Write the expression line to history
                 self.__write_expression_visual_pad(f"{expression_prompt}{expression_input}")
+
+                # Get order of traversal
+                order_chosen = None
+                while order_chosen not in set(['1', '2']):
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, 'Please select an order of traversal (Enter the number):')
+                    self.__write_expression_visual_pad('Please select an order of traversal (Enter the number):')
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '1. Pre-Order Traversal')
+                    self.__write_expression_visual_pad('1. Pre-Order Traversal')
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '2. Post-Order Traversal')
+                    self.__write_expression_visual_pad('2. Post-Order Traversal')
+                    self.__application_terminal_window.scroll()
+
+                    self.__refresh()
+
+                    order_prompt = "Your selection: "
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, order_prompt)
+                    order_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                    order_input = str(order_raw_input, "utf-8")
+                    order_chosen = order_input
+
+                    self.__write_expression_visual_pad(f"{order_prompt}{order_input}")
+                
+                # Get traversal based on selection
+                traversal = None
+                if order_chosen == '1':
+                    traversal = evaluator.get_traversal('pre_order')
+                elif order_chosen == '2':
+                    traversal = evaluator.get_traversal('post_order')
+
+                # Show evaluatiopn and traversal tree
+                evaluation_str = f"Evaluation: {expression_input} = {evaluation}"
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, evaluation_str)
+                self.__write_expression_visual_pad(evaluation_str)
+                self.__application_terminal_window.scroll()
+
+                self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, 'Traversal: ')
+                self.__write_expression_visual_pad('Traversal: ')
+                self.__application_terminal_window.scroll()
+                for traverse in traversal:
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, traverse)
+                    self.__write_expression_visual_pad(traverse)
+                    self.__application_terminal_window.scroll()
+
+                self.__refresh()
 
                 # Process the expression and do something
                 curses.noecho()
