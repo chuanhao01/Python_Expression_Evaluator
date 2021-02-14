@@ -372,7 +372,7 @@ class CLI(object):
         self.__load_application_terminal_window('Expression Evaluator', curses.color_pair(2))
         self.__refresh()
 
-        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selection menu"
+        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of the application, Press 'ESC' to go back to the selection menu"
         self.__write_expression_visual_pad(expression_evaluator_prompt_str)
         self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
         self.__application_terminal_window.scroll()
@@ -480,7 +480,7 @@ class CLI(object):
         self.__load_application_terminal_window('File Sorter', curses.color_pair(3))
         self.__refresh()
 
-        expression_evaluator_prompt_str = "Press 'i' to start writing the file locations, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selection menu"
+        expression_evaluator_prompt_str = "Press 'i' to start writing the file locations, Press 'v' to look at the history of the application, Press 'ESC' to go back to the selection menu"
         self.__write_expression_visual_pad(expression_evaluator_prompt_str)
         self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
         self.__application_terminal_window.scroll()
