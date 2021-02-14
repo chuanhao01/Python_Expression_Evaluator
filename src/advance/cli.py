@@ -5,6 +5,12 @@ import curses
 import time
 import curses.panel as panel
 
+# Importing evaluator
+from .expression_evaluator import Evaluator
+
+# Importing file and sort
+from ..common.expression_sorter import File, Sort
+
 class CLI(object):
     def __init__(self):
         # Curses objs
@@ -365,7 +371,7 @@ class CLI(object):
         self.__load_application_terminal_window('Expression Evaluator', curses.color_pair(2))
         self.__refresh()
 
-        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selectio menu"
+        expression_evaluator_prompt_str = "Press 'i' to start writing your expression, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selection menu"
         self.__write_expression_visual_pad(expression_evaluator_prompt_str)
         self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
         self.__application_terminal_window.scroll()
@@ -385,16 +391,77 @@ class CLI(object):
                 # Insert mode, user writes their expression
                 expression_prompt = "Your Expression: "
                 self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_prompt)
+                self.__refresh()
 
                 # Setting for user input to show up
                 curses.echo()
                 curses.curs_set(1)
-                # Get the expression typed in
-                expression_raw_input = self.__application_terminal_window.getstr() # Read as bytes
-                expression_input = str(expression_raw_input, "utf-8")
+                try:
+                    # Get the expression typed in
+                    expression_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                    expression_input = str(expression_raw_input, "utf-8")
+                    self.__application_terminal_window.scroll()
 
-                # Write the expression line to history
-                self.__write_expression_visual_pad(f"{expression_prompt}{expression_input}")
+                    # Write the expression line to history
+                    self.__write_expression_visual_pad(f"{expression_prompt}{expression_input}")
+
+                    # Evaluator logic
+                    evaluator = Evaluator()
+                    evaluation = evaluator.evaluate(expression_input)
+
+                    # Get order of traversal
+                    order_chosen = None
+                    while order_chosen not in set(['1', '2']):
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, 'Please select an order of traversal (Enter the number):')
+                        self.__write_expression_visual_pad('Please select an order of traversal (Enter the number):')
+                        self.__application_terminal_window.scroll()
+
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '1. Pre-Order Traversal')
+                        self.__write_expression_visual_pad('1. Pre-Order Traversal')
+                        self.__application_terminal_window.scroll()
+
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '2. Post-Order Traversal')
+                        self.__write_expression_visual_pad('2. Post-Order Traversal')
+                        self.__application_terminal_window.scroll()
+
+                        self.__refresh()
+
+                        order_prompt = "Your selection: "
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, order_prompt)
+                        order_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                        order_input = str(order_raw_input, "utf-8")
+                        order_chosen = order_input
+
+                        self.__write_expression_visual_pad(f"{order_prompt}{order_input}")
+                    
+                    # Get traversal based on selection
+                    traversal = None
+                    if order_chosen == '1':
+                        traversal = evaluator.get_traversal('pre_order')
+                    elif order_chosen == '2':
+                        traversal = evaluator.get_traversal('post_order')
+
+                    # Show evaluatiopn and traversal tree
+                    evaluation_str = f"Evaluation: {expression_input} = {evaluation}"
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, evaluation_str)
+                    self.__write_expression_visual_pad(evaluation_str)
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, 'Traversal: ')
+                    self.__write_expression_visual_pad('Traversal: ')
+                    self.__application_terminal_window.scroll()
+                    for traverse in traversal:
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, traverse)
+                        self.__write_expression_visual_pad(traverse)
+                        self.__application_terminal_window.scroll()
+
+                    self.__refresh()
+
+                except Exception as e:
+                    error_msg = f"Error occured: {str(e)}"
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, error_msg, curses.color_pair(5))
+                    self.__write_expression_visual_pad(error_msg, curses.color_pair(5))
+                    self.__application_terminal_window.scroll()
 
                 # Process the expression and do something
                 curses.noecho()
@@ -412,7 +479,7 @@ class CLI(object):
         self.__load_application_terminal_window('File Sorter', curses.color_pair(3))
         self.__refresh()
 
-        expression_evaluator_prompt_str = "Press 'i' to start writing the file locations, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selectio menu"
+        expression_evaluator_prompt_str = "Press 'i' to start writing the file locations, Press 'v' to look at the history of the application, Pression 'ESC' go back to the selection menu"
         self.__write_expression_visual_pad(expression_evaluator_prompt_str)
         self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
         self.__application_terminal_window.scroll()
@@ -453,23 +520,106 @@ class CLI(object):
                 # Write the expression line to history
                 self.__write_expression_visual_pad(f"{output_file_location_prompt}{output_file_location_input}")
 
+                # Get sort order
+                order_chosen = None
+                while order_chosen not in set(['1', '2']):
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, 'Please select an order of sorting (Enter the number):')
+                    self.__write_expression_visual_pad('Please select an order of sorting (Enter the number):')
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '1. Ascending')
+                    self.__write_expression_visual_pad('1. Ascending')
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '2. Descending')
+                    self.__write_expression_visual_pad('2. Descending')
+                    self.__application_terminal_window.scroll()
+
+                    self.__refresh()
+
+                    order_prompt = "Your selection: "
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, order_prompt)
+                    order_raw_input = self.__application_terminal_window.getstr() # Read as bytes
+                    order_input = str(order_raw_input, "utf-8")
+                    order_chosen = order_input
+
+                    self.__write_expression_visual_pad(f"{order_prompt}{order_input}")
+                
+                sort_order = None
+                if order_chosen == '1':
+                    sort_order = 'ascending'
+                elif order_chosen == '2':
+                    sort_order = 'descending'
+
+                f = File()
+                try:
+                    expressions = f.read(input_file_location_input)
+                    evaluated_expressions = []
+                    for expression in expressions:
+                        expression = expression[0]
+                        evaluator = Evaluator()
+                        evaluation = evaluator.evaluate(expression)
+                        evaluated_expressions.append([expression, evaluation])
+                    sorter = Sort(evaluated_expressions, sort_order=sort_order)
+                    sorted_expressions = sorter.sort()
+                    f.write(output_file_location_input, sorted_expressions)
+
+                    self.__write_expression_visual_pad('')
+                    self.__application_terminal_window.scroll()
+
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '>>>>Evaluation and sorted started:')
+                    self.__write_expression_visual_pad('>>>>Evaluation and sorted started:')
+                    self.__application_terminal_window.scroll()
+
+                    self.__write_expression_visual_pad('')
+                    self.__application_terminal_window.scroll()
+
+                    for sorted_expression in sorted_expressions:
+                        evaluation = sorted_expression[0]
+                        expressions = sorted_expression[1]
+                        self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, f"*** Expressions with value = {evaluation}")
+                        self.__write_expression_visual_pad(f"*** Expressions with value = {evaluation}")
+                        self.__application_terminal_window.scroll()
+                        for expression in expressions:
+                            self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, f"{expression} ==> {evaluation}")
+                            self.__write_expression_visual_pad(f"*** Expressions with value = {evaluation}")
+                            self.__application_terminal_window.scroll()
+                        self.__write_expression_visual_pad('')
+                        self.__application_terminal_window.scroll()
+                    
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, '>>>Evaluation and sorting completed!')
+                    self.__write_expression_visual_pad('>>>Evaluation and sorting completed!')
+                    self.__application_terminal_window.scroll()
+
+                    self.__write_expression_visual_pad('')
+                    self.__application_terminal_window.scroll()
+
+                except Exception as e:
+                    error_msg = f"Error occured: {str(e)}"
+                    self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, error_msg, curses.color_pair(5))
+                    self.__write_expression_visual_pad(error_msg, curses.color_pair(5))
+                    self.__application_terminal_window.scroll()
+
                 # Process the expression and do something
                 curses.noecho()
                 curses.curs_set(0)
             else:
                 continue
                 
-            self.__write_expression_visual_pad(expression_evaluator_prompt_str)
             self.__application_terminal_window.addstr(self.__application_terminal_y, self.__application_terminal_x, expression_evaluator_prompt_str)
+            self.__write_expression_visual_pad(expression_evaluator_prompt_str)
             self.__application_terminal_window.scroll()
 
             self.__refresh()
     
-    def __write_expression_visual_pad(self, history_str):
+    def __write_expression_visual_pad(self, history_str, attribute=None):
         '''
         Writes the given string to the expression pad
         '''
-        self.__application_history_pad.addstr(self.__history_length - 1, 0, history_str)
+        if attribute is None:
+            self.__application_history_pad.addstr(self.__history_length - 1, 0, history_str)
+        else:
+            self.__application_history_pad.addstr(self.__history_length - 1, 0, history_str, attribute)
         self.__application_history_pad.scroll()
 
     def __load_application_hisotry_pad(self):
