@@ -14,6 +14,9 @@ from ..common.expression_sorter import File, Sort
 class CLI:
     #* General
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def print_header():
         print("*" * 60)
@@ -39,8 +42,7 @@ class CLI:
 
     @staticmethod
     def print_continue():
-        print("\nPress any key to continue....")
-        input()
+        input("\nPress any key to continue....\n")
 
 
     #* Expression Evaluator
@@ -54,9 +56,13 @@ class CLI:
         print("\nPlease select your choice <'1', '2', '3'>:")
         print("\t 1. Pre Order Tree Traversal")
         print("\t 2. In Order Tree Traversal")
-        print("\t 3. Post Order Tree Traversal")
+        print("\t 3. Post Order Tree Traversal")    
 
-        return input("Enter choice: ")
+        choice = -1
+        while choice not in ["1", "2", "3"]:
+            choice = input("Enter choice: ")
+
+        return choice
 
     @staticmethod
     def print_parseTree(traversalChoice, ast):
@@ -83,7 +89,7 @@ class CLI:
     #* Expression Sorter
 
     @staticmethod
-    def print_getFiles():
+    def get_files():
         input_file = ""
         output_file = ""
 
@@ -97,7 +103,7 @@ class CLI:
         return (input_file, output_file)
 
     @staticmethod
-    def print_sortSettings():
+    def get_sortSettings():
         choice = -1
 
         while choice not in ['1', '2']:
@@ -124,25 +130,17 @@ class CLI:
             print(f"\n*** Expressions with value = {value}")
 
             for expression in sublist[1]:
-                #print(type(sublist[i]))
                 print(f"{expression[0]} ==> {value}")
 
         print("\n>>> Evaluating and Sorting completed!")
 
     
-    @staticmethod
-    def run():
+    def run(self):
         CLI.print_header()
-
-        choice = -1
         done = False
 
         while not done:
-            # Reset the choice for next selection
-            choice = -1
-
-            while choice not in ['1', '2', '3']:
-                choice = CLI.print_selectionScreen()
+            choice = CLI.print_selectionScreen()
 
             if choice == '1':
                 expression_evaluated = False
@@ -151,17 +149,13 @@ class CLI:
                 while not expression_evaluated:
                     try:
                         expression = CLI.print_inputExpression()
-                        traversalChoice = -1
-
-                        while traversalChoice not in ['1', '2', '3']:
-                            traversalChoice = CLI.print_traversalSelection()
-
+                        traversalChoice = CLI.print_traversalSelection()
                         ast, result = Evaluator.evaluate(expression)
+
+                        expression_evaluated = True
                     except Exception as error:
                         print(error)
                         continue
-
-                    expression_evaluated = True
 
                 CLI.print_parseTree(traversalChoice, ast)
                 CLI.print_evaluateResult(result)
@@ -171,9 +165,8 @@ class CLI:
             elif choice == '2':
                 valid_expressions = True
 
-                input_file, output_file = CLI.print_getFiles()
-                sort_type = "value"
-                sort_order = CLI.print_sortSettings()
+                input_file, output_file = CLI.get_files()
+                sort_order = CLI.get_sortSettings()
                 
                 allExpressions = File.read(input_file)
 
@@ -183,7 +176,7 @@ class CLI:
                         expression.append(Evaluator.evaluate(expression[0])[1])
                     except Exception as error:
                         print(f"There was an invalid expression in {input_file}.. The specific error is as follows:")
-                        print(error)
+                        print(error, "\n")
 
                         valid_expressions = False
                         break
@@ -191,7 +184,7 @@ class CLI:
                 if valid_expressions:
                     # Sort the expressions according to value
                     # sort = Sort(all_expr_list = allExpressions, sort_type = sort_type, sort_order = sort_order)
-                    sort = Sort(all_expr_list = allExpressions)
+                    sort = Sort(all_expr_list = allExpressions, sort_order = sort_order)
                     sortedList = sort.sort()
 
                     CLI.print_sortResult(sortedList)

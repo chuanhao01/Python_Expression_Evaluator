@@ -14,8 +14,13 @@ class Sort:
         self.__sort_type = sort_type
         self.__sort_order = sort_order
 
-    def error(self):
-        raise Exception("Error occurred while sorting..")
+    def error(self, error_type = None):
+        if error_type == "invalid_sort_type":
+            raise ValueError("Invalid Sorting Type.. Only 'Value' or 'Length' accepted")
+        elif error_type == "invalid_sort_order":
+            raise ValueError("Invalid Sorting Order.. Only 'ascending' or 'descending' accepted")
+        else:
+            raise Exception("Error occurred while sorting..")
 
 
     #* Getter and Setter
@@ -30,8 +35,9 @@ class Sort:
         return self.__sort_type
 
     def set_sort_type(self, sort_type):
-        if sort_type not in ["value", "length", "digitOrder"]:
-            self.error()
+        if sort_type not in ["value", "length"]:
+            error_type = "invalid_sort_type"
+            self.error(error_type)
 
         self.__sort_type = sort_type
     
@@ -40,7 +46,8 @@ class Sort:
 
     def set_sort_order(self, sort_order):
         if sort_order not in ["ascending", "descending"]:
-            self.error()
+            error_type = "invalid_sort_order"
+            self.error(error_type)
 
         self.__sort_order = sort_order
 
@@ -58,7 +65,7 @@ class Sort:
         return all_expressions
 
     #* Compile the sorted list into sublists based on value
-    def compile_sortedList_by_value(self, sorted_exprList):
+    def compile_list_by_value(self, sorted_exprList):
         value_list = [expression[1] for expression in sorted_exprList]
         expression_list = [expression for expression in sorted_exprList]
         
@@ -85,14 +92,14 @@ class Sort:
         all_expressions = self.preprocess_expr()
 
         sortedList = self.mergeSort(all_expressions)
-        compiledList = self.compile_sortedList_by_value(sortedList)
+        sortedList = self.compile_list_by_value(sortedList)
 
-        for sublist in compiledList:
+        for sublist in sortedList:
             if len(sublist[1]) > 1:
                 self.set_sort_type("length")
                 sublist = self.mergeSort(sublist[1])
 
-        return compiledList
+        return sortedList
 
 
     # Merge Sort WHEEEEEEEEE
@@ -104,6 +111,9 @@ class Sort:
             list_index = 1
         elif sort_type == "length":
             list_index = 2
+        else:
+            error_type = "invalid_sort_type"
+            self.error(error_type)
 
         if len(expr_list) > 1:
             #* Dividing the expr_list
@@ -144,7 +154,8 @@ class Sort:
                         right_index += 1
 
                 else:
-                    self.error()
+                    error_type = "invalid_sort_order"
+                    self.error(error_type)
                 
                 merge_index += 1
 

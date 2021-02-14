@@ -1,5 +1,5 @@
 
-from src.basic.cli import CLI
+from src.basic.cli import CLI as basic_CLI
 
-# Prob gonna change this to a normal method later
-CLI.run()
+basic_cli = basic_CLI()
+basic_cli.run()

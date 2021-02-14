@@ -76,6 +76,8 @@ The sublist of expressions evaluating to each value will already be sorted accor
 * The values of sort_type and sort_order will default to "value" and "ascending" if no argument is provided.
   
 * In the event that there are multiple expressions with the same value and same length, the expressions will be sorted in ordered sort.
+  
+* There can only be one sort order - "ascending" or "descending" and the expresssion will be sorted by value and length in the same sort order
 
 
 **Printing Result**

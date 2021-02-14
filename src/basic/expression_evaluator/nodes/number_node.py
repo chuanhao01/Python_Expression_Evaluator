@@ -10,5 +10,4 @@ class Number_Node(AST):
         self.token_value = token.token_value
 
     def __str__(self):
-        #TODO: Create a better __str__() function
         return f"{self.token}"
