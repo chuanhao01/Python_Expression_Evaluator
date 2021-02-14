@@ -12,7 +12,7 @@ from ..tokens.token_type import E, PI, SIN, COS, TAN, FLOOR, CEIL, LN, LG, FACTO
 
 # Import AST and NodeVisitor
 from ..nodes import AST
-from ..nodes import Number_Node, String_Node, Unary_Node, BinaryOp_Node, Function_Node
+from ..nodes import Number_Node, String_Node, UnaryOp_Node, BinaryOp_Node, Function_Node
 from ..nodes import NodeVisitor
 
 class Interpreter(NodeVisitor):
@@ -34,8 +34,10 @@ class Interpreter(NodeVisitor):
         token_type = node.token.type
         left = self.visit(node.left)
         right = self.visit(node.right)
+        # print(node.token)
+        # print(left, right)
         # Check if binary op is done on same type of variable
-        if type(left) != type(right):
+        if not (type(left) == type(right) or ((isinstance(left, int) or isinstance(left, float)) == (isinstance(right, int) or isinstance(right, float)))):
             self.__error()
         
         # For both str or int
@@ -69,16 +71,18 @@ class Interpreter(NodeVisitor):
         # There is an error?
         self.__error()
     
-    def visit_UnaryOp_Node(self, node: Unary_Node):
+    def visit_UnaryOp_Node(self, node: UnaryOp_Node):
         token_type = node.token.type
         child = self.visit(node.child)
 
         # Node only supports number
         if not (isinstance(child, int) or isinstance(child, float)):
-            if token_type == PLUS:
-                return child
-            elif token_type == MINUS:
-                return -child
+            self.__error()
+
+        if token_type == PLUS:
+            return child
+        elif token_type == MINUS:
+            return -child
     
     def visit_Function_Node(self, node: Function_Node):
         node_token = node.token

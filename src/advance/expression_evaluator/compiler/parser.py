@@ -8,7 +8,7 @@ from ..tokens.token_type import PLUS, MINUS, MUL, DIV, MODULUS, INT_DIV, POWER, 
 from ..tokens.token_type import NUMBER, IDENTIFIER, STRING
 
 # Importing nodes
-from ..nodes import Number_Node, String_Node, Unary_Node, BinaryOp_Node, Function_Node
+from ..nodes import Number_Node, String_Node, UnaryOp_Node, BinaryOp_Node, Function_Node
 
 class Parser(object):
     def __init__(self, tokens):
@@ -125,7 +125,7 @@ class Parser(object):
         if self.__match_token([PLUS, MINUS]):
             token = self.__cur_token
             self.__consume([PLUS, MINUS])
-            return Unary_Node(token, self.__unary())
+            return UnaryOp_Node(token, self.__unary())
         else:
             return self.__call()
 
