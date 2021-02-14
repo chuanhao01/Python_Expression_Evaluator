@@ -1,0 +1,15 @@
+# Gitignore file for the whole repo
+# As such is used to ignore artifacts and such
+
+# DLL files
+__pycache__/
+**.pyc
+
+# Vscode settings
+.vscode/
+
+# Test files folder
+**testFiles
+
+# Ignore the input and output files
+**.txt
