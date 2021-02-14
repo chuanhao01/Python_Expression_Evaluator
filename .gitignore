@@ -10,3 +10,6 @@ __pycache__/
 
 # Test files folder
 **testFiles
+
+# Ignore the input and output files
+**.txt

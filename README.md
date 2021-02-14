@@ -1,4 +1,3 @@
-
 ## ST1507 - Data Structures & Algorithms ( for AI ) CA2 Assignment -  Python Expression Evaluator
 
 ---
@@ -32,3 +31,7 @@ The entire application is split into the Basic and Advanced Application whereby 
 
 * [Github Repo](https://github.com/chuanhao01/Python_Expression_Evaluator)
 * [Report](https://github.com/chuanhao01/Python_Expression_Evaluator/DSAA_CA2_Final_Report.pdf) 
+
+Escape key triva  
+[Link](https://stackoverflow.com/questions/27372068/why-does-the-escape-key-have-a-delay-in-python-curses)
+

@@ -15,6 +15,9 @@ from ..nodes import AST
 from ..nodes import Number_Node, String_Node, UnaryOp_Node, BinaryOp_Node, Function_Node
 from ..nodes import NodeVisitor
 
+# Common algos
+from ....common.common_algos import bin_to_decimal, hex_to_decimal
+
 class Interpreter(NodeVisitor):
     def __init__(self, ast: AST):
         self.__ast = ast
@@ -133,9 +136,9 @@ class Interpreter(NodeVisitor):
                     self.__error()
                 # Eval
                 if function_name == BIN:
-                    pass
+                    return bin_to_decimal(argument)
                 elif function_name == HEX:
-                    pass
+                    return hex_to_decimal(argument)
         elif function_name in set([LOG, POW, MOD, PERM, COMB]):
             # Arity 2
             if not node.check_arity(2):
