@@ -9,24 +9,32 @@ from ...nodes import NodeVisitor
 
 class PostOrder(NodeVisitor):
     def __init__(self, level = 0):
-        self.level = level
+        self.__level = level
+
+    #* Getter and Setter
+    def get_level(self):
+        return self.__level
+
+    def set_level(self, level):
+        self.__level = level
+
 
     def traverse(self, node):
         if type(node).__name__ == "BinaryOp_Node":
-            self.level += 1
+            self.__level += 1
 
             # Left
             self.traverse(node.left_term)
 
             # Right
             self.traverse(node.right_term)
-            self.level -= 1
+            self.__level -= 1
 
             # Root
-            print(str("~" * self.level) + " " + node.operator.token_value)
+            print(str("~" * self.__level) + " " + node.operator.token_value)
 
         elif type(node).__name__ == "Number_Node":
-            print(str("~" * self.level) + " " + str(node.token_value))
+            print(str("~" * self.__level) + " " + str(node.token_value))
             return
 
         else:

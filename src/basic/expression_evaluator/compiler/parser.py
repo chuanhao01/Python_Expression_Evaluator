@@ -14,10 +14,21 @@ from .lexer import Lexer
 class Parser(object):
     def __init__(self, lexer):
         self.lexer = lexer
-        self.all_tokens = lexer.get_all_tokens()
+        self.__all_tokens = lexer.get_all_tokens()
 
-        self.token_index = 0
-        self.current_token = self.all_tokens[self.token_index]
+        self.__token_index = 0
+        self.__current_token = self.__all_tokens[self.__token_index]
+
+    #* Getters ( No need for Setters because these attributes should only be altered within the class )
+    def get_all_tokens(self):
+        return self.__all_tokens
+
+    def get_token_index(self):
+        return self.__token_index
+
+    def get_current_token(self):
+        return self.__current_token
+
 
     #* Utilities
 
@@ -46,20 +57,20 @@ class Parser(object):
 
     def __advance(self):
         #* Advance to the next character of the input __expression and,
-        #* Update self.current_token if not reached the end of the stream of tokens
+        #* Update self.__current_token if not reached the end of the stream of tokens
 
-        if self.token_index < len(self.all_tokens):
-            self.token_index += 1
-            self.current_token = self.all_tokens[self.token_index]
+        if self.__token_index < len(self.__all_tokens):
+            self.__token_index += 1
+            self.__current_token = self.__all_tokens[self.__token_index]
 
     def __peek(self):
         #* "Peek" into the next token of the stream of tokens and,
         #* return this token if it is not the end of the stream of tokens
 
-        pos = self.token_index + 1
+        pos = self.__token_index + 1
 
-        if pos < len(self.all_tokens):
-            return self.all_tokens[pos]
+        if pos < len(self.__all_tokens):
+            return self.__all_tokens[pos]
         
         return None
 
@@ -67,7 +78,7 @@ class Parser(object):
         #* Compare the current token type with the passed token type
         #* If they match, "__eat" the current token and __advance to next token
         #* Else, raise an Exception __error
-        if self.current_token.token_type == token_type:
+        if self.__current_token.token_type == token_type:
             self.__advance()
 
         else:
@@ -83,14 +94,14 @@ class Parser(object):
         # Performing a check for INIT token
         # If INIT Token is found, raise an __error
         # This should only occur if this is called separately from self.parse()
-        if self.current_token.token_type == INIT:
+        if self.__current_token.token_type == INIT:
             error_type = "internal_error"
             self.__error(error_type)
 
         node = None
         left___term = self.__term()
 
-        if self.current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
+        if self.__current_token.token_type in [PLUS, MINUS, MUL, DIV, POWER]:
             # Peek and make sure that the next token is not an OPERATOR 
             # (with the exception of MINUS due to MINUS FACTOR)
             # If it is an operator, raise and __error
@@ -98,27 +109,27 @@ class Parser(object):
                 error_type = "multiple_consecutive_operators"
                 self.__error(error_type)
 
-            node = self.current_token
+            node = self.__current_token
             
-            if self.current_token.token_type == PLUS:
+            if self.__current_token.token_type == PLUS:
                 self.__eat(PLUS)
-            elif self.current_token.token_type == MINUS:
+            elif self.__current_token.token_type == MINUS:
                 self.__eat(MINUS)
-            elif self.current_token.token_type == MUL:
+            elif self.__current_token.token_type == MUL:
                 self.__eat(MUL)
-            elif self.current_token.token_type == DIV:
+            elif self.__current_token.token_type == DIV:
                 self.__eat(DIV)
-            elif self.current_token.token_type == POWER:
+            elif self.__current_token.token_type == POWER:
                 self.__eat(POWER)
 
             right___term = self.__term()
             node = BinaryOp_Node(left___term, node, right___term)
             
-            if self.current_token.token_type != RPARAN:
+            if self.__current_token.token_type != RPARAN:
                 error_type = "incorrect_paranthesis"
                 self.__error(error_type)
 
-        elif self.current_token.token_type != RPARAN:
+        elif self.__current_token.token_type != RPARAN:
             error_type = "incorrect_paranthesis"
             self.__error(error_type)
 
@@ -131,14 +142,14 @@ class Parser(object):
         ''' FACTOR | EXPR '''
 
         # EXPR
-        if self.current_token.token_type == LPARAN:
+        if self.__current_token.token_type == LPARAN:
             self.__eat(LPARAN)
 
             node = self.__expr()
             return node
 
         # FACTOR
-        elif self.current_token.token_type == NUMBER or (self.__peek().token_type == NUMBER and self.current_token.token_type == MINUS):
+        elif self.__current_token.token_type == NUMBER or (self.__peek().token_type == NUMBER and self.__current_token.token_type == MINUS):
             node = self.__factor()
             return node
 
@@ -148,7 +159,7 @@ class Parser(object):
 
     def __factor(self):
         ''' MINUS FACTOR | NUMBER '''
-        node = self.current_token
+        node = self.__current_token
 
         # NUMBER
         if node.token_type == NUMBER:
@@ -165,8 +176,8 @@ class Parser(object):
         if node.token_type == MINUS:
             self.__eat(MINUS)
 
-            self.current_token.token_value *= -1
-            node = self.current_token
+            self.__current_token.token_value *= -1
+            node = self.__current_token
 
             self.__eat(NUMBER)
             return Number_Node(node)
@@ -182,7 +193,7 @@ class Parser(object):
 
         # Perform a check of the Paranthesis count before starting any parsing
         left_paran_count = right_paran_count = 0
-        for token in self.all_tokens:
+        for token in self.__all_tokens:
             if token.token_type == LPARAN:
                 left_paran_count += 1
             if token.token_type == RPARAN:
