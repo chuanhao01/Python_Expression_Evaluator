@@ -1,7 +1,7 @@
 # ST1507 - Data Structures & Algorithms ( for AI ) CA2 Assignment -  Python Expression Evaluator
 
-Date: 14/02/2021
-Class: DIT/FT/2B/11
+Date: 14/02/2021  
+Class: DIT/FT/2B/11  
 Done by:
 - Lim Chuan Hao ( P1922264 )
 - Sherisse Tan Jing Wen ( P1935967 )
